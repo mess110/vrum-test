@@ -21,6 +21,7 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/button.fg.001.glb' },
   { type: 'model', path: 'assets/models/chassis.001.glb' },
   { type: 'model', path: 'assets/models/chassis.002.glb' },
+  { type: 'model', path: 'assets/models/ground.001.glb' },
   { type: 'model', path: 'assets/models/coin.001.glb' },
   { type: 'model', path: 'assets/models/rench.001.glb' },
   { type: 'model', path: 'assets/models/tower.001.glb' },

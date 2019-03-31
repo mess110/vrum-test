@@ -14,10 +14,14 @@ class MenuScene extends Scene {
     this.wall = wall
     this.add(wall)
 
-    let ground = Utils.plane({size: 1000, color: '#55AA55' })
-    ground.position.set(0, 0, -30)
-    // ground.rotation.set(Math.PI / 2, 0, 0)
-    this.add(ground)
+    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
+    sky.position.set(0, 0, -30)
+    this.add(sky)
+
+    // let sky = new Sky()
+    // sky.updateSun(sky.distance, 0.1, sky.azimuth)
+    // this.add(sky)
+    // this.sky = sky
 
     this.tanks = []
     this.buttons = []
@@ -31,6 +35,15 @@ class MenuScene extends Scene {
     tank.changeWeapon(tank.weapons.items.shuffle().first())
     this.tanks.push(tank)
     this.add(tank)
+    // tank.visible = false
+
+    let ground = AssetManager.clone('ground.001.glb')
+    ground.position.set(10, -8, 4.9)
+    ground.rotation.set(-0.5880026035475676, -1, 0)
+    // ground.scale.set(8, 3, 25)
+    ground.scale.setScalar(3)
+    ground.translateZ(-18.5 * 2 - 7)
+    this.add(ground)
 
     let duration = 2000
     let pos = {
@@ -57,11 +70,6 @@ class MenuScene extends Scene {
       left.chain(up)
       left.start()
     }, duration + 100)
-
-    let sky = new Sky()
-    sky.updateSun(sky.distance, 0.1, sky.azimuth)
-    this.add(sky)
-    this.sky = sky
 
     this.mouseDown = false
     this.stopAutoRotate = false

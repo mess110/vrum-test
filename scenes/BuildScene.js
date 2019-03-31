@@ -26,10 +26,14 @@ class BuildScene extends Scene {
     this.tanks.push(tank)
     this.add(tank)
 
-    let sky = new Sky()
-    sky.updateSun(sky.distance, 0.1, sky.azimuth)
+    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
+    sky.position.set(0, 0, -30)
     this.add(sky)
-    this.sky = sky
+
+    // let sky = new Sky()
+    // sky.updateSun(sky.distance, 0.1, sky.azimuth)
+    // this.add(sky)
+    // this.sky = sky
 
     this.mouseDown = false
     this.stopAutoRotate = false
