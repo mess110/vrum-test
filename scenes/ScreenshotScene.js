@@ -55,9 +55,9 @@ class ScreenshotScene extends Scene {
     this.add(button)
   }
 
-  tick(tpf) {
-    this.tanks.forEach((tank) => {
+  // tick(tpf) {
+    // this.tanks.forEach((tank) => {
       // tank.tick(tpf)
-    })
-  }
+    // })
+  // }
 }

@@ -1,6 +1,3 @@
-class Menu extends THREE.Object3D {
-}
-
 class MenuButton extends THREE.Object3D {
   constructor(s) {
     super()
@@ -20,6 +17,7 @@ class MenuButton extends THREE.Object3D {
     text.position.set(0, -1.4, 0.7)
     text.scale.set(1, 1, 1)
     fg.add(text)
+    this.text = text
 
     this.isHovered = false
     this.isPressed = false
@@ -27,6 +25,10 @@ class MenuButton extends THREE.Object3D {
     this.pressSpeed = 4
     this.growSpeed = 2
     this.isMobileOrTablet = Utils.isMobileOrTablet()
+  }
+
+  setText(s) {
+    this.text.setText(s)
   }
 
   tick(tpf) {
@@ -57,13 +59,13 @@ class MenuButton extends THREE.Object3D {
 
   doMouseEvent(event, raycaster) {
     if (this.isMobileOrTablet) {
-      this.doMobileEvent(event, raycaster)
+      this.doMouseMobileEvent(event, raycaster)
     } else {
-      this.doPCEvent(event, raycaster)
+      this.doMousePCEvent(event, raycaster)
     }
   }
 
-  doMobileEvent(event, raycaster) {
+  doMouseMobileEvent(event, raycaster) {
     if (event.type == 'mousedown' || event.type == 'mouseup') {
       let intersections = raycaster.intersectObject(this, true)
       intersections = intersections.filter((e) => !(e.object instanceof BaseText))
@@ -72,15 +74,15 @@ class MenuButton extends THREE.Object3D {
         this.isPressed = true
       }
       if (event.type == 'mouseup') {
-        this.isPressed = false
-        if (intersections.any()) {
+        if (intersections.any() && this.isPressed) {
           this.click()
         }
+        this.isPressed = false
       }
     }
   }
 
-  doPCEvent(event, raycaster) {
+  doMousePCEvent(event, raycaster) {
     if (event.type == 'mousemove') {
       let intersections = raycaster.intersectObject(this, true)
       intersections = intersections.filter((e) => !(e.object instanceof BaseText))
@@ -106,10 +108,16 @@ class MenuButton extends THREE.Object3D {
     let button = event[0].buttons[0]
     if (button.pressed) {
     }
-    // if (button.)
   }
 
+  // Don't override this method, instead override onClick()
   click() {
+    if (this.isEnabled) {
+      this.onClick()
+    }
+  }
+
+  onClick() {
     console.log('click')
   }
 }

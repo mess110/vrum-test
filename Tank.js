@@ -31,7 +31,7 @@ class Tank extends THREE.Object3D {
     this.wheelBR = wheelBR
 
     let weapon = new Weapon(this.weapons.get())
-    weapon.position.set(0, 2.5, 0)
+    weapon.position.set(0, 2.65, 0)
     this.add(weapon)
     this.weapon = weapon
   }
@@ -68,10 +68,7 @@ class Tank extends THREE.Object3D {
   }
 
   tick(tpf) {
-    this.wheelFL.tick(tpf)
-    this.wheelFR.tick(tpf)
-    this.wheelBL.tick(tpf)
-    this.wheelBR.tick(tpf)
+    // TODO
   }
 }
 

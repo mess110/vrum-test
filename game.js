@@ -5,12 +5,18 @@ let gameScene = new GameScene()
 let menuScene = new MenuScene()
 let buildScene = new BuildScene()
 let screenshotScene = new ScreenshotScene()
+let tutorialScene = new TutorialScene()
 
-// let loadingScene = new LoadingScene(screenshotScene, [
-let loadingScene = new LoadingScene(buildScene, [
+let creditsScene = new AddsScene(menuScene, ["vrum-text.png"])
+
+let sceneAfterLoading
+// sceneAfterLoading = tutorialScene
+sceneAfterLoading = menuScene
+
+let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/ammo.001.glb' },
   { type: 'model', path: 'assets/models/ammo.002.glb' },
-  { type: 'model', path: 'assets/models/barrel.001.glb' },
+  // { type: 'model', path: 'assets/models/barrel.001.glb' }, // already loaded
   { type: 'model', path: 'assets/models/button.bg.001.glb' },
   { type: 'model', path: 'assets/models/button.fg.001.glb' },
   { type: 'model', path: 'assets/models/chassis.001.glb' },
@@ -29,21 +35,14 @@ let loadingScene = new LoadingScene(buildScene, [
   { type: 'model', path: 'assets/models/wheel.003.glb' },
 ])
 loadingScene.initCallback = () => {
-  let light = new THREE.PointLight()
-  light.position.set(0, 50, 0)
-  loadingScene.add(light)
-
-  let ambient = new THREE.AmbientLight('white', 0.6)
-  loadingScene.add(ambient)
-  loadingScene.remove(loadingScene.cube)
+  addBaseLight(loadingScene)
   loadingScene.cube = new THREE.Object3D()
+
   let barrel = AssetManager.clone('barrel.001.glb')
-  // barrel.position.set(0, -3, 0)
-  loadingScene.cube.add(barrel)
   loadingScene.barrel = barrel
+
+  loadingScene.cube.add(barrel)
   loadingScene.cube.rotation.set(0, 0, Math.PI / 2)
-  // loadingScene.cube.setWireframe(true)
-  // loadingScene.cube.rotation.set(0, 0, Math.PI / 2)
   loadingScene.add(loadingScene.cube)
 
   let text = new BaseText({
@@ -60,8 +59,20 @@ loadingScene.tick = (tpf) => {
 }
 let logosScene = new AddsScene(loadingScene, ["logo.png"])
 
-// Engine.start(loadingScene, [
-Engine.start(logosScene, [
+const addBaseLight = (scene) => {
+  let light = new THREE.PointLight()
+  light.position.set(0, 50, 0)
+  scene.add(light)
+
+  let ambient = new THREE.AmbientLight('white', 0.6)
+  scene.add(ambient)
+}
+
+let sceneAfterInit
+// sceneAfterInit = loadingScene
+sceneAfterInit = logosScene
+
+Engine.start(sceneAfterInit, [
   { type: 'font', path: 'assets/luckiest-guy' },
   { type: 'image', path: 'assets/vrum-text.png'},
   { type: 'image', path: 'assets/logo.png'},

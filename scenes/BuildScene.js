@@ -1,11 +1,6 @@
 class BuildScene extends Scene {
   init(options) {
-    let light = new THREE.PointLight()
-    light.position.set(0, 50, 0)
-    this.add(light)
-
-    let ambient = new THREE.AmbientLight('white', 0.6)
-    this.add(ambient)
+    addBaseLight(this)
 
     let barrel = AssetManager.clone('barrel.001.glb')
     barrel.position.set(0, -4.5, 0)
@@ -27,6 +22,7 @@ class BuildScene extends Scene {
     this.buttons = []
 
     let tank = new Tank()
+    tank.position.set(0, 0, 1)
     this.tanks.push(tank)
     this.add(tank)
 
@@ -42,7 +38,7 @@ class BuildScene extends Scene {
     let chassisButton = new MenuButton('chassis')
     chassisButton.position.set(-7, 4.75, -3)
     chassisButton.lookAt(Hodler.get('camera').position)
-    chassisButton.click = () => {
+    chassisButton.onClick = () => {
       Hodler.get('scene').tanks[0].nextChassis()
     }
     this.add(chassisButton)
@@ -51,7 +47,7 @@ class BuildScene extends Scene {
     let weaponButton = new MenuButton('weapon')
     weaponButton.position.set(0, 5, -3)
     weaponButton.lookAt(Hodler.get('camera').position)
-    weaponButton.click = () => {
+    weaponButton.onClick = () => {
       Hodler.get('scene').tanks[0].nextWeapon()
     }
     this.add(weaponButton)
@@ -60,31 +56,37 @@ class BuildScene extends Scene {
     let wheelButton = new MenuButton('wheels')
     wheelButton.position.set(7, 4.75, -3)
     wheelButton.lookAt(Hodler.get('camera').position)
-    wheelButton.click = () => {
+    wheelButton.onClick = () => {
       Hodler.get('scene').tanks[0].nextWheels()
     }
     this.add(wheelButton)
     this.buttons.push(wheelButton)
 
     let saveButton = new MenuButton('start')
-    saveButton.position.set(0, -3, 4)
+    saveButton.position.set(0, -2, 4)
     saveButton.lookAt(Hodler.get('camera').position)
-    saveButton.click = () => {
+    saveButton.onClick = () => {
+      saveButton.isEnabled = false
       Engine.switch(gameScene)
     }
     this.add(saveButton)
     this.buttons.push(saveButton)
 
-    this.keyboardFocused = undefined
+    this.resetMenu()
+    this.lastGamepadEventTime = 0
+  }
+
+  resetMenu() {
     this.leftArray = [0, 1, 2].toCyclicArray()
     this.leftArray.next()
-
-    this.lastGamepadEventTime = 0
   }
 
   tick(tpf) {
     this.tanks.forEach((tank) => {
-      tank.tick(tpf)
+      tank.wheelFL.tick(-tpf)
+      tank.wheelFR.tick(tpf)
+      tank.wheelBL.tick(-tpf)
+      tank.wheelBR.tick(tpf)
       tank.rotation.y += tpf
     })
     this.buttons.forEach((button) => {
@@ -113,15 +115,13 @@ class BuildScene extends Scene {
       })
 
       if (event.code == 'ArrowDown') {
-        this.leftArray = [0, 1, 2].toCyclicArray()
-        this.leftArray.next()
+        this.resetMenu()
         this.buttons[3].isHovered = true
       }
 
       let topIsHovered = this.buttons[0].isHovered || this.buttons[1].isHovered || this.buttons[2].isHovered
       if (event.code == 'ArrowUp') {
-        this.leftArray = [0, 1, 2].toCyclicArray()
-        this.leftArray.next()
+        this.resetMenu()
         if (!topIsHovered) {
           this.buttons[1].isHovered = true
         }
@@ -179,8 +179,5 @@ class BuildScene extends Scene {
       }, 100)
       this.lastGamepadEventTime = this.uptime
     }
-    // this.buttons.forEach((button) => {
-      // button.doGamepadEvent(event)
-    // })
   }
 }
