@@ -25,7 +25,7 @@ class ScreenshotScene extends Scene {
     let tank1 = new Tank()
     tank1.position.set(-3, 0, -2)
     tank1.rotation.set(0, -0.4, 0)
-    tank1.changeChassis('chassis.002.glb')
+    tank1.setModel('chassis.002.glb')
     this.tanks.push(tank1)
     this.add(tank1)
 

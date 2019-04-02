@@ -30,7 +30,7 @@ class MenuScene extends Scene {
     tank.position.set(36.33804182448716, -13.380791386191827, -9.071187079287736)
     tank.rotation.set(-0.5880026035475676, -1, 0)
     tank.scale.setScalar(3)
-    tank.changeChassis(tank.chassises.items.shuffle().first())
+    tank.setModel(tank.chassises.items.shuffle().first())
     tank.changeWheels(tank.wheels.items.shuffle().first())
     tank.changeWeapon(tank.weapons.items.shuffle().first())
     this.tanks.push(tank)
