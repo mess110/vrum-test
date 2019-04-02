@@ -19,31 +19,20 @@ class TutorialScene extends Scene {
     this.coins = []
 
     let coin = new Coin()
-    coin.position.set(0, 2, 8)
+    coin.position.set(7, 2, -8)
     this.add(coin)
     this.coins.push(coin)
     this.coin = coin
 
-    this.barrels = []
-
-    let barrel = AssetManager.clone('barrel.001.glb')
-    barrel.position.set(0, 0, -8)
-    Utils.addOutline(barrel)
-    this.add(barrel)
-    this.barrel = barrel
-
-    let wall = AssetManager.clone('wall.001.glb')
-    wall.position.set(12, 0, 0)
-    this.add(wall)
-    this.wall = wall
-
     this.tanks = []
 
     let tank = new Tank()
-    tank.position.set(0, 0, 1)
+    tank.position.set(6, 0, 9)
     this.tanks.push(tank)
     this.add(tank)
     this.tank = tank
+
+    this.alreadySwitched = false
 
     let control = new PositionXZRotationYControls()
     control.speed *= 2
@@ -53,6 +42,15 @@ class TutorialScene extends Scene {
     let rayScanner = new RayScanner()
     // rayScanner.drawLines = true
     this.rayScanner = rayScanner
+
+    this.collidables = [island]
+
+    for (var i = 0; i < 4; i++) {
+      let wall = AssetManager.clone('wall.001.glb')
+      wall.position.set(13 - i * 6, 0, 0)
+      this.add(wall)
+      this.collidables.push(wall)
+    }
   }
 
   tick(tpf) {
@@ -78,10 +76,7 @@ class TutorialScene extends Scene {
     let fromPosition = this.tank.position.clone()
     fromPosition.y += 2
 
-    this.rayScanner.scan(
-      [this.island, this.barrel, this.wall],
-      fromPosition, this.control.velocity
-    )
+    this.rayScanner.scan(this.collidables, fromPosition, this.control.velocity)
 
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
 
@@ -90,6 +85,15 @@ class TutorialScene extends Scene {
     }
     if (this.rayScanner.addZ) {
       this.tank.position.z += this.control.velocity.z
+    }
+
+    if (this.alreadySwitched) {
+      return
+    }
+    let distance = Measure.distanceBetween(this.tank, this.coins[0])
+    if (distance < 3) {
+      this.alreadySwitched = true
+      Engine.switch(menuScene)
     }
   }
 
