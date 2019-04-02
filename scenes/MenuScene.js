@@ -82,7 +82,7 @@ class MenuScene extends Scene {
     this.stopAutoRotate = false
     this.heldButton = undefined
 
-    let tutorialButton = new MenuButton('tutorial')
+    let tutorialButton = new Button3D('tutorial')
     tutorialButton.position.set(-3, 1, 0)
     tutorialButton.lookAt(Hodler.get('camera').position)
     tutorialButton.position.set(-8, 3, 1)
@@ -94,7 +94,7 @@ class MenuScene extends Scene {
     this.add(tutorialButton)
     this.buttons.push(tutorialButton)
 
-    let playButton = new MenuButton('play')
+    let playButton = new Button3D('play')
     playButton.position.set(-3, 1, 0)
     playButton.lookAt(Hodler.get('camera').position)
     playButton.position.set(-8, 0, 2)
@@ -106,7 +106,7 @@ class MenuScene extends Scene {
     this.add(playButton)
     this.buttons.push(playButton)
 
-    let creditsButton = new MenuButton('credits')
+    let creditsButton = new Button3D('credits')
     creditsButton.position.set(-3, 1, 0)
     creditsButton.lookAt(Hodler.get('camera').position)
     creditsButton.position.set(-8, -3, 3)

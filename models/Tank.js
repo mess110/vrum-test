@@ -6,7 +6,7 @@ class Tank extends THREE.Object3D {
     this.wheels = ['wheel.001.glb', 'wheel.002.glb', 'wheel.003.glb'].toCyclicArray()
     this.weapons = ['weapon.001.glb', 'weapon.002.glb', 'weapon.003.glb'].toCyclicArray()
 
-    this.changeChassis(this.chassises.get())
+    this.setModel(this.chassises.get())
 
     let wheelKey = this.wheels.get()
 
@@ -37,10 +37,10 @@ class Tank extends THREE.Object3D {
   }
 
   nextChassis() {
-    this.changeChassis(this.chassises.next())
+    this.setModel(this.chassises.next())
   }
 
-  changeChassis(key) {
+  setModel(key) {
     this.remove(this.chassis)
     let chassis = AssetManager.clone(key)
     Utils.addOutline(chassis)

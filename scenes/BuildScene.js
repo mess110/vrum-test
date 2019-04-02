@@ -43,7 +43,7 @@ class BuildScene extends Scene {
     this.stopAutoRotate = false
     this.heldButton = undefined
 
-    let chassisButton = new MenuButton('chassis')
+    let chassisButton = new Button3D('chassis')
     chassisButton.position.set(-7, 4.75, -3)
     chassisButton.lookAt(Hodler.get('camera').position)
     chassisButton.onClick = () => {
@@ -52,7 +52,7 @@ class BuildScene extends Scene {
     this.add(chassisButton)
     this.buttons.push(chassisButton)
 
-    let weaponButton = new MenuButton('weapon')
+    let weaponButton = new Button3D('weapon')
     weaponButton.position.set(0, 5, -3)
     weaponButton.lookAt(Hodler.get('camera').position)
     weaponButton.onClick = () => {
@@ -61,7 +61,7 @@ class BuildScene extends Scene {
     this.add(weaponButton)
     this.buttons.push(weaponButton)
 
-    let wheelButton = new MenuButton('wheels')
+    let wheelButton = new Button3D('wheels')
     wheelButton.position.set(7, 4.75, -3)
     wheelButton.lookAt(Hodler.get('camera').position)
     wheelButton.onClick = () => {
@@ -70,7 +70,7 @@ class BuildScene extends Scene {
     this.add(wheelButton)
     this.buttons.push(wheelButton)
 
-    let saveButton = new MenuButton('start')
+    let saveButton = new Button3D('start')
     saveButton.position.set(0, -2, 4)
     saveButton.lookAt(Hodler.get('camera').position)
     saveButton.onClick = () => {

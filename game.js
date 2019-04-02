@@ -15,7 +15,7 @@ let tutorialScene = new TutorialScene()
 let creditsScene = new AddsScene(menuScene, ["vrum-text.png"])
 
 let sceneAfterLoading
-sceneAfterLoading = tutorialScene
+// sceneAfterLoading = tutorialScene
 // sceneAfterLoading = buildScene
 sceneAfterLoading = menuScene
 

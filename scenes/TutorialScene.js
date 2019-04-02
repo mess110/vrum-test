@@ -5,10 +5,12 @@ class TutorialScene extends Scene {
     let camera = this.getCamera()
     camera.position.set(0, 35, 25)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
+    camera.position.set(0, 100, 100)
 
     let island = AssetManager.clone('island.001.glb')
     Utils.addOutline(island)
     this.add(island)
+    this.island = island
 
     let sky = Utils.plane({size: 1000, color: '#29bbf4' })
     sky.position.set(0, 0, -30)
@@ -22,6 +24,19 @@ class TutorialScene extends Scene {
     this.coins.push(coin)
     this.coin = coin
 
+    this.barrels = []
+
+    let barrel = AssetManager.clone('barrel.001.glb')
+    barrel.position.set(0, 0, -8)
+    Utils.addOutline(barrel)
+    this.add(barrel)
+    this.barrel = barrel
+
+    let wall = AssetManager.clone('wall.001.glb')
+    wall.position.set(12, 0, 0)
+    this.add(wall)
+    this.wall = wall
+
     this.tanks = []
 
     let tank = new Tank()
@@ -30,111 +45,21 @@ class TutorialScene extends Scene {
     this.add(tank)
     this.tank = tank
 
-    this.velY = 0
-    this.velX = 0
-    this.speed = 100
-    this.acceleration = 10
-    this.friction = 0.98
-    let control = new Control()
+    let control = new PositionXZRotationYControls()
+    control.speed *= 2
+    control.acceleration *= 2
     this.control = control
 
-    this.targetRotationY = 0
-
-    let vj = new VirtualController()
-    this.vj = vj
+    let rayScanner = new RayScanner()
+    // rayScanner.drawLines = true
+    this.rayScanner = rayScanner
   }
 
   tick(tpf) {
-    if (Utils.isMobileOrTablet()) {
-      let joy = this.vj.joystick1
-      if (joy.right()) {
-        this.doKeyboardEvent({type: 'keydown', code: 'KeyD'})
-      } else {
-        this.doKeyboardEvent({type: 'keyup', code: 'KeyD'})
-      }
-      if (joy.left()) {
-        this.doKeyboardEvent({type: 'keydown', code: 'KeyA'})
-      } else {
-        this.doKeyboardEvent({type: 'keyup', code: 'KeyA'})
-      }
-      if (joy.down()) {
-        this.doKeyboardEvent({type: 'keydown', code: 'KeyS'})
-      } else {
-        this.doKeyboardEvent({type: 'keyup', code: 'KeyS'})
-      }
-      if (joy.up()) {
-        this.doKeyboardEvent({type: 'keydown', code: 'KeyW'})
-      } else {
-        this.doKeyboardEvent({type: 'keyup', code: 'KeyW'})
-      }
-    }
-    let velY = this.velY
-    let velX = this.velX
-    let speed = this.speed
-    let friction = this.friction
-    let acceleration = this.acceleration
-    let keys = this.control.keys
+    Measure.clearLines()
 
-    if (this.control.is('Forward')) {
-      if (velY > -speed) {
-        velY -= tpf * acceleration
-      }
-      this.targetRotationY = Math.PI
-    }
-
-    if (this.control.is('Backward')) {
-      if (velY < speed) {
-        velY += tpf * acceleration
-      }
-      this.targetRotationY = 0
-    }
-
-    if (this.control.is('Left')) {
-      if (velX > -speed) {
-        velX -= tpf * acceleration
-      }
-      this.targetRotationY = Math.PI / 2 * 3
-    }
-
-    if (this.control.is('Right')) {
-      if (velX < speed) {
-        velX += tpf * acceleration
-      }
-      this.targetRotationY = Math.PI / 2
-    }
-
-    if (this.control.is('Forward') && this.control.is('Left')) {
-      this.targetRotationY = (Math.PI + Math.PI / 2 * 3) / 2
-    }
-    if (this.control.is('Forward') && this.control.is('Right')) {
-      this.targetRotationY = (Math.PI + Math.PI / 2) / 2
-    }
-    if (this.control.is('Backward') && this.control.is('Left')) {
-      this.targetRotationY = (Math.PI * 2 + Math.PI / 2 * 3) / 2
-    }
-    if (this.control.is('Backward') && this.control.is('Right')) {
-      this.targetRotationY = (0 + Math.PI / 2) / 2
-    }
-
-    let rSpeed = 12
-
-    // var quaternion = new THREE.Quaternion()
-    // quaternion.setFromAxisAngle( new THREE.Vector3( 0, 1, 0 ), this.targetRotationY)
-    // this.tank.quaternion.slerp(quaternion, (rSpeed * tpf))
-
-    let diff = Math.abs(this.tank.rotation.y - this.targetRotationY)
-    if (diff >= rSpeed * tpf) {
-      let tankR = Utils.radiansToDeg(this.tank.rotation.y)
-      let targetR = Utils.radiansToDeg(this.targetRotationY)
-      if (Utils.calcShortestRotDirection(tankR, targetR)) {
-        this.tank.rotation.y += rSpeed * tpf
-      } else {
-        this.tank.rotation.y -= rSpeed * tpf
-      }
-    this.tank.rotation.y = Utils.normalizeRadians(this.tank.rotation.y)
-    } else {
-      this.tank.rotation.y = this.targetRotationY
-    }
+    this.control.doMobileEvent()
+    this.control.tick(tpf)
 
     if (this.control.isMoving()) {
       let wheelSpeed = 2
@@ -144,23 +69,28 @@ class TutorialScene extends Scene {
       this.tank.wheelBR.tick(tpf * wheelSpeed)
     }
 
-    let y = this.tank.position.z
-    let x = this.tank.position.x
-
-    velY *= friction;
-    y += velY;
-    velX *= friction;
-    x += velX;
-
     this.coins.forEach((coin) => {
       coin.rotation.y += tpf
     })
 
-    this.tank.position.x += velX
-    this.tank.position.z += velY
-  }
+    this.tank.rotation.y = this.control.rotationY
 
-  fuck(from, to) {
+    let fromPosition = this.tank.position.clone()
+    fromPosition.y += 2
+
+    this.rayScanner.scan(
+      [this.island, this.barrel, this.wall],
+      fromPosition, this.control.velocity
+    )
+
+    Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
+
+    if (this.rayScanner.addX) {
+      this.tank.position.x += this.control.velocity.x
+    }
+    if (this.rayScanner.addZ) {
+      this.tank.position.z += this.control.velocity.z
+    }
   }
 
   doKeyboardEvent(event) {
@@ -168,29 +98,6 @@ class TutorialScene extends Scene {
   }
 
   doGamepadEvent(event) {
-    if (event.type !== 'gamepadtick-vrum') { return }
-    let gamepad = event[0]
-      if (isBlank(gamepad)) { return }
-
-    if (gamepad.axes[0] > 0.5) {
-      this.doKeyboardEvent({type: 'keydown', code: 'KeyD'})
-    } else {
-      this.doKeyboardEvent({type: 'keyup', code: 'KeyD'})
-    }
-    if (gamepad.axes[0] < -0.5) {
-      this.doKeyboardEvent({type: 'keydown', code: 'KeyA'})
-    } else {
-      this.doKeyboardEvent({type: 'keyup', code: 'KeyA'})
-    }
-    if (gamepad.axes[1] > 0.5) {
-      this.doKeyboardEvent({type: 'keydown', code: 'KeyS'})
-    } else {
-      this.doKeyboardEvent({type: 'keyup', code: 'KeyS'})
-    }
-    if (gamepad.axes[1] < -0.5) {
-      this.doKeyboardEvent({type: 'keydown', code: 'KeyW'})
-    } else {
-      this.doKeyboardEvent({type: 'keyup', code: 'KeyW'})
-    }
+    this.control.doGamepadEvent(event)
   }
 }
