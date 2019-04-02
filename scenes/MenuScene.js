@@ -14,7 +14,7 @@ class MenuScene extends Scene {
     this.wall = wall
     this.add(wall)
 
-    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
+    let sky = Utils.plane({size: 1000, color: Config.instance.vax.skyColor})
     sky.position.set(0, 0, -30)
     this.add(sky)
 
@@ -36,6 +36,13 @@ class MenuScene extends Scene {
     this.tanks.push(tank)
     this.add(tank)
     // tank.visible = false
+
+    this.initClouds()
+
+    let coin = new Coin()
+    coin.position.set(0.5, 0, 0)
+    this.add(coin)
+    this.coin = coin
 
     let ground = AssetManager.clone('ground.001.glb')
     ground.position.set(10, -8, 4.9)
@@ -118,6 +125,31 @@ class MenuScene extends Scene {
     this.lastGamepadEventTime = 0
   }
 
+  initClouds() {
+    let om = Utils.outlineMaterial('white', 0.001)
+
+    let cloud = AssetManager.clone('cloud.001.glb')
+    cloud.position.set(-10, 1, -20)
+    cloud.rotation.set(-0.25, 0, 0)
+    Utils.addOutline(cloud, 10, om)
+    this.add(cloud)
+
+    let scanEasing = TWEEN.Easing.Quadratic.InOut
+    let scanDuration = 4000
+    var up = new BaseModifier(cloud.rotation, { x: '+0.5' }, scanDuration, scanEasing)
+    var down = new BaseModifier(cloud.rotation, { x: '-0.5' }, scanDuration, scanEasing)
+    up.chain(down)
+    down.chain(up)
+    up.start()
+
+    // let scanDuration = 4000
+    var left = new BaseModifier(cloud.position, { x: '+50' }, scanDuration, scanEasing)
+    var right = new BaseModifier(cloud.position, { x: '-50' }, scanDuration, scanEasing)
+    left.chain(right)
+    right.chain(left)
+    left.start()
+  }
+
   tick(tpf) {
     this.tanks.forEach((tank) => {
       // tank.tick(tpf)
@@ -125,6 +157,7 @@ class MenuScene extends Scene {
     this.buttons.forEach((button) => {
       button.tick(tpf)
     })
+    this.coin.rotation.y += tpf
   }
 
   doMouseEvent(event, raycaster) {

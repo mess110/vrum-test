@@ -2,6 +2,10 @@ class BuildScene extends Scene {
   init(options) {
     addBaseLight(this)
 
+    let camera = this.getCamera()
+    camera.position.set(0, 10, 15)
+    camera.lookAt(new THREE.Vector3(0, 0, 0))
+
     let barrel = AssetManager.clone('barrel.001.glb')
     barrel.position.set(0, -4.5, 0)
     this.add(barrel)
@@ -13,7 +17,7 @@ class BuildScene extends Scene {
       this.add(wall)
     }
 
-    let ground = Utils.plane({width: 60, height: 20, color: '#55AA55' })
+    let ground = Utils.plane({width: 60, height: 20, color: Config.instance.vax.groundColor })
     ground.position.set(0, -4.5, 0)
     ground.rotation.set(Math.PI / 2, 0, 0)
     this.add(ground)
@@ -26,7 +30,7 @@ class BuildScene extends Scene {
     this.tanks.push(tank)
     this.add(tank)
 
-    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
+    let sky = Utils.plane({size: 1000, color: Config.instance.vax.skyColor })
     sky.position.set(0, 0, -30)
     this.add(sky)
 

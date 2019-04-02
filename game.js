@@ -1,5 +1,10 @@
-// Config.instance.engine.debug = true
-// Config.instance.window.showStatsOnStart = true
+Config.instance.engine.debug = true
+Config.instance.window.showStatsOnStart = true
+
+Config.instance.vax = {
+  skyColor: '#29bbf4',
+  groundColor: '#55AA55'
+}
 
 let gameScene = new GameScene()
 let menuScene = new MenuScene()
@@ -10,7 +15,8 @@ let tutorialScene = new TutorialScene()
 let creditsScene = new AddsScene(menuScene, ["vrum-text.png"])
 
 let sceneAfterLoading
-// sceneAfterLoading = tutorialScene
+sceneAfterLoading = tutorialScene
+// sceneAfterLoading = buildScene
 sceneAfterLoading = menuScene
 
 let loadingScene = new LoadingScene(sceneAfterLoading, [
@@ -21,10 +27,13 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/button.fg.001.glb' },
   { type: 'model', path: 'assets/models/chassis.001.glb' },
   { type: 'model', path: 'assets/models/chassis.002.glb' },
-  { type: 'model', path: 'assets/models/ground.001.glb' },
+  { type: 'model', path: 'assets/models/cloud.001.glb' },
   { type: 'model', path: 'assets/models/coin.001.glb' },
+  { type: 'model', path: 'assets/models/ground.001.glb' },
   { type: 'model', path: 'assets/models/rench.001.glb' },
   { type: 'model', path: 'assets/models/tower.001.glb' },
+  { type: 'model', path: 'assets/models/island.001.glb' },
+  { type: 'model', path: 'assets/models/tree.001.glb' },
   { type: 'model', path: 'assets/models/wall.001.glb' },
   { type: 'model', path: 'assets/models/wall.002.glb' },
   { type: 'model', path: 'assets/models/wall.corner.001.glb' },

@@ -1,5 +1,7 @@
 class GameScene extends Scene {
   init(options) {
+    addBaseLight(this)
+
     let camera = this.getCamera()
     camera.position.set(0, 0, 30)
     camera.lookAt(new THREE.Vector3(0, 0, 0))

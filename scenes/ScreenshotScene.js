@@ -1,17 +1,12 @@
 class ScreenshotScene extends Scene {
   init(options) {
-    Hodler.get('renderer').setClearColor(0xFFFFFF)
+    addBaseLight(this)
 
     let camera = this.getCamera()
     camera.position.set(0, 5, 10)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
 
-    let light = new THREE.PointLight()
-    light.position.set(0, 50, 0)
-    this.add(light)
-
-    let ambient = new THREE.AmbientLight('white', 0.6)
-    this.add(ambient)
+    Hodler.get('renderer').setClearColor(0xFFFFFF)
 
     let barrel = AssetManager.clone('barrel.001.glb')
     barrel.position.set(0, 0, -6)
