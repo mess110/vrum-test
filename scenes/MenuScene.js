@@ -30,9 +30,9 @@ class MenuScene extends Scene {
     tank.position.set(36.33804182448716, -13.380791386191827, -9.071187079287736)
     tank.rotation.set(-0.5880026035475676, -1, 0)
     tank.scale.setScalar(3)
-    tank.setModel(tank.chassises.items.shuffle().first())
-    tank.changeWheels(tank.wheels.items.shuffle().first())
-    tank.changeWeapon(tank.weapons.items.shuffle().first())
+    tank.setModel(tank.chassisModels.items.shuffle().first())
+    tank.changeWheels(tank.wheelModels.items.shuffle().first())
+    tank.changeWeapon(tank.weaponModels.items.shuffle().first())
     this.tanks.push(tank)
     this.add(tank)
     // tank.visible = false
@@ -59,10 +59,10 @@ class MenuScene extends Scene {
       z: 4.9100882614742005
     }
     new BaseModifier(tank.position, pos, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheelFR.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheelFL.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheelBL.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheelBR.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
+    new BaseModifier(tank.wheels.wheelFR.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
+    new BaseModifier(tank.wheels.wheelFL.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
+    new BaseModifier(tank.wheels.wheelBL.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
+    new BaseModifier(tank.wheels.wheelBR.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
 
     let scanEasing = TWEEN.Easing.Elastic.Out
     let scanDuration = 4000

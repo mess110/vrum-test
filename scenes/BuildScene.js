@@ -91,10 +91,10 @@ class BuildScene extends Scene {
 
   tick(tpf) {
     this.tanks.forEach((tank) => {
-      tank.wheelFL.tick(-tpf)
-      tank.wheelFR.tick(tpf)
-      tank.wheelBL.tick(-tpf)
-      tank.wheelBR.tick(tpf)
+      tank.wheels.wheelFL.tick(-tpf)
+      tank.wheels.wheelFR.tick(tpf)
+      tank.wheels.wheelBL.tick(-tpf)
+      tank.wheels.wheelBR.tick(tpf)
       tank.rotation.y += tpf
     })
     this.buttons.forEach((button) => {

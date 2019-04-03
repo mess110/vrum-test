@@ -12,7 +12,7 @@ let buildScene = new BuildScene()
 let screenshotScene = new ScreenshotScene()
 let tutorialScene = new TutorialScene()
 
-let creditsScene = new AddsScene(menuScene, ["vrum-text.png"])
+let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 
 let sceneAfterLoading
 // sceneAfterLoading = tutorialScene
@@ -29,10 +29,11 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/chassis.002.glb' },
   { type: 'model', path: 'assets/models/cloud.001.glb' },
   { type: 'model', path: 'assets/models/coin.001.glb' },
+  { type: 'model', path: 'assets/models/flag.001.glb' },
   { type: 'model', path: 'assets/models/ground.001.glb' },
   { type: 'model', path: 'assets/models/rench.001.glb' },
   { type: 'model', path: 'assets/models/tower.001.glb' },
-  { type: 'model', path: 'assets/models/island.001.glb' },
+  { type: 'model', path: 'assets/models/island.002.glb' },
   { type: 'model', path: 'assets/models/tree.001.glb' },
   { type: 'model', path: 'assets/models/wall.001.glb' },
   { type: 'model', path: 'assets/models/wall.002.glb' },
@@ -86,5 +87,6 @@ Engine.start(sceneAfterInit, [
   { type: 'font', path: 'assets/luckiest-guy' },
   { type: 'image', path: 'assets/vrum-text.png'},
   { type: 'image', path: 'assets/logo.png'},
+  { type: 'image', path: 'assets/credits.png'},
   { type: 'model', path: 'assets/models/barrel.001.glb' },
 ])

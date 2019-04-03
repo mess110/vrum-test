@@ -2,42 +2,26 @@ class Tank extends THREE.Object3D {
   constructor() {
     super()
 
-    this.chassises = ['chassis.001.glb', 'chassis.002.glb'].toCyclicArray()
-    this.wheels = ['wheel.001.glb', 'wheel.002.glb', 'wheel.003.glb'].toCyclicArray()
-    this.weapons = ['weapon.001.glb', 'weapon.002.glb', 'weapon.003.glb'].toCyclicArray()
+    this.chassisModels = ['chassis.001.glb', 'chassis.002.glb'].toCyclicArray()
+    this.wheelModels = ['wheel.001.glb', 'wheel.002.glb', 'wheel.003.glb'].toCyclicArray()
+    this.weaponModels = ['weapon.001.glb', 'weapon.002.glb', 'weapon.003.glb'].toCyclicArray()
 
-    this.setModel(this.chassises.get())
+    this.setModel(this.chassisModels.get())
 
-    let wheelKey = this.wheels.get()
+    let wheelKey = this.wheelModels.get()
 
-    let wheelFL = new Wheel(wheelKey)
-    wheelFL.position.set(1.35, 0.5, 0.9)
-    this.add(wheelFL)
-    this.wheelFL = wheelFL
+    let wheels = new Wheels(wheelKey)
+    this.wheels = wheels
+    this.add(wheels)
 
-    let wheelFR = new Wheel(wheelKey)
-    wheelFR.position.set(-1.35, 0.5, 0.9)
-    this.add(wheelFR)
-    this.wheelFR = wheelFR
-
-    let wheelBL = new Wheel(wheelKey)
-    wheelBL.position.set(1.35, 0.5, -0.9)
-    this.add(wheelBL)
-    this.wheelBL = wheelBL
-
-    let wheelBR = new Wheel(wheelKey)
-    wheelBR.position.set(-1.35, 0.5, -0.9)
-    this.add(wheelBR)
-    this.wheelBR = wheelBR
-
-    let weapon = new Weapon(this.weapons.get())
+    let weapon = new Weapon(this.weaponModels.get())
     weapon.position.set(0, 2.65, 0)
     this.add(weapon)
     this.weapon = weapon
   }
 
   nextChassis() {
-    this.setModel(this.chassises.next())
+    this.setModel(this.chassisModels.next())
   }
 
   setModel(key) {
@@ -49,26 +33,59 @@ class Tank extends THREE.Object3D {
   }
 
   nextWheels() {
-    this.changeWheels(this.wheels.next())
+    this.changeWheels(this.wheelModels.next())
   }
 
   changeWheels(key) {
+    this.wheels.setModel(key)
+  }
+
+  nextWeapon() {
+    this.changeWeapon(this.weaponModels.next())
+  }
+
+  changeWeapon(key) {
+    this.weapon.setModel(key)
+  }
+}
+
+class Wheels extends THREE.Object3D {
+  constructor(key) {
+    super()
+
+    let wheelFL = new Wheel(key)
+    wheelFL.position.set(1.35, 0.5, 0.9)
+    this.add(wheelFL)
+    this.wheelFL = wheelFL
+
+    let wheelFR = new Wheel(key)
+    wheelFR.position.set(-1.35, 0.5, 0.9)
+    this.add(wheelFR)
+    this.wheelFR = wheelFR
+
+    let wheelBL = new Wheel(key)
+    wheelBL.position.set(1.35, 0.5, -0.9)
+    this.add(wheelBL)
+    this.wheelBL = wheelBL
+
+    let wheelBR = new Wheel(key)
+    wheelBR.position.set(-1.35, 0.5, -0.9)
+    this.add(wheelBR)
+    this.wheelBR = wheelBR
+  }
+
+  setModel(key) {
     this.wheelFL.setModel(key)
     this.wheelFR.setModel(key)
     this.wheelBL.setModel(key)
     this.wheelBR.setModel(key)
   }
 
-  nextWeapon() {
-    this.changeWeapon(this.weapons.next())
-  }
-
-  changeWeapon(key) {
-    this.weapon.setModel(key)
-  }
-
   tick(tpf) {
-    // TODO
+    this.wheelFL.tick(tpf)
+    this.wheelFR.tick(tpf)
+    this.wheelBL.tick(tpf)
+    this.wheelBR.tick(tpf)
   }
 }
 
