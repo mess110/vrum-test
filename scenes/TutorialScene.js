@@ -21,7 +21,7 @@ class TutorialScene extends Scene {
     this.bullets = []
 
     let coin = new Coin()
-    coin.position.set(7, 2, -8)
+    coin.position.set(10, 2, 16)
     this.add(coin)
     this.coins.push(coin)
     this.coin = coin
@@ -33,7 +33,22 @@ class TutorialScene extends Scene {
     this.add(tank)
     this.tank = tank
 
-    this.alreadySwitched = false
+    this.tutorialText = Utils.plane({ map: 'tutorial-wasd.png', size: 30, transparent: true, wSegments: 2, hSegments: 2, side: THREE.FrontSide })
+    this.tutorialText.rotation.set(-Math.PI / 2, 0, 0)
+    this.tutorialText.position.set(0, 0.1, 0)
+    this.add(this.tutorialText)
+
+    this.tutorialStage = 0
+  }
+
+  setTutorial(key) {
+    let easing = TWEEN.Easing.Cubic.InOut
+    new FadeModifier(this.tutorialText, 1, 0, 500, easing).start()
+    this.setTimeout(() => {
+      this.tutorialText.material.map = AssetManager.get(key)
+      new FadeModifier(this.tutorialText, 0, 1, 500, easing).start()
+    }, 600)
+    return
   }
 
   tick(tpf) {
@@ -50,14 +65,38 @@ class TutorialScene extends Scene {
 
     this.tank.tick(tpf)
 
-    if (this.alreadySwitched) {
-      return
+    if (this.tutorialStage == 0) {
+      let distance = Measure.distanceBetween(this.tank, this.coins[0])
+      if (distance < 3) {
+        this.tutorialStage += 1
+        this.coins.forEach((coin) => {
+          this.remove(coin)
+        })
+        this.coins = []
+        this.setTutorial('tutorial-aim.png')
+
+        let practiceDummy = AssetManager.clone('practice.dummy.001.glb')
+        practiceDummy.position.set(0, 0, -16)
+        this.add(practiceDummy)
+        this.practiceDummy = practiceDummy
+      }
+    }
+    if (this.tutorialStage == 1) {
+      this.bullets.forEach((bullet) => {
+        let distance = Measure.distanceBetween(bullet, this.practiceDummy)
+        if (distance < 4) {
+          this.tutorialStage += 1
+          this.remove(this.practiceDummy)
+          this.setTutorial('tutorial-exit.png')
+        }
+      })
     }
 
-    let distance = Measure.distanceBetween(this.tank, this.coins[0])
-    if (distance < 3) {
-      this.alreadySwitched = true
-      Engine.switch(menuScene)
+    if (this.tutorialStage == 2) {
+      if (this.tank.position.x > 35) {
+        this.tutorialStage += 1
+        Engine.switch(menuScene)
+      }
     }
   }
 

@@ -1,3 +1,4 @@
+Config.instance.engine.prod = true
 Config.instance.engine.debug = true
 Config.instance.window.showStatsOnStart = true
 
@@ -14,12 +15,13 @@ let tutorialScene = new TutorialScene()
 
 let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 
-let sceneAfterLoading
-// sceneAfterLoading = tutorialScene
-// sceneAfterLoading = buildScene
-sceneAfterLoading = menuScene
+let sceneAfterLoading = Config.instance.engine.prod ? menuScene : tutorialScene
 
 let loadingScene = new LoadingScene(sceneAfterLoading, [
+  { type: 'image', path: 'assets/tutorial-wasd.png' },
+  { type: 'image', path: 'assets/tutorial-aim.png' },
+  { type: 'image', path: 'assets/tutorial-exit.png' },
+
   { type: 'model', path: 'assets/models/ammo.001.glb' },
   { type: 'model', path: 'assets/models/ammo.002.glb' },
   // { type: 'model', path: 'assets/models/barrel.001.glb' }, // already loaded
@@ -35,6 +37,7 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/tower.001.glb' },
   { type: 'model', path: 'assets/models/island.002.glb' },
   { type: 'model', path: 'assets/models/tree.001.glb' },
+  { type: 'model', path: 'assets/models/practice.dummy.001.glb' },
   { type: 'model', path: 'assets/models/wall.001.glb' },
   { type: 'model', path: 'assets/models/wall.002.glb' },
   { type: 'model', path: 'assets/models/wall.corner.001.glb' },
@@ -79,9 +82,7 @@ const addBaseLight = (scene) => {
   scene.add(ambient)
 }
 
-let sceneAfterInit
-// sceneAfterInit = loadingScene
-sceneAfterInit = logosScene
+let sceneAfterInit = Config.instance.engine.prod ? logosScene : loadingScene
 
 Engine.start(sceneAfterInit, [
   { type: 'font', path: 'assets/luckiest-guy' },
