@@ -22,13 +22,12 @@ class BuildScene extends Scene {
     ground.rotation.set(Math.PI / 2, 0, 0)
     this.add(ground)
 
-    this.tanks = []
     this.buttons = []
 
     let tank = new Tank()
     tank.position.set(0, 0, 1)
-    this.tanks.push(tank)
     this.add(tank)
+    this.tank = tank
 
     let sky = Utils.plane({size: 1000, color: Config.instance.vax.skyColor })
     sky.position.set(0, 0, -30)
@@ -47,7 +46,7 @@ class BuildScene extends Scene {
     chassisButton.position.set(-7, 4.75, -3)
     chassisButton.lookAt(Hodler.get('camera').position)
     chassisButton.onClick = () => {
-      Hodler.get('scene').tanks[0].nextChassis()
+      Hodler.get('scene').tank.nextChassis()
     }
     this.add(chassisButton)
     this.buttons.push(chassisButton)
@@ -56,7 +55,7 @@ class BuildScene extends Scene {
     weaponButton.position.set(0, 5, -3)
     weaponButton.lookAt(Hodler.get('camera').position)
     weaponButton.onClick = () => {
-      Hodler.get('scene').tanks[0].nextWeapon()
+      Hodler.get('scene').tank.nextWeapon()
     }
     this.add(weaponButton)
     this.buttons.push(weaponButton)
@@ -65,7 +64,7 @@ class BuildScene extends Scene {
     wheelButton.position.set(7, 4.75, -3)
     wheelButton.lookAt(Hodler.get('camera').position)
     wheelButton.onClick = () => {
-      Hodler.get('scene').tanks[0].nextWheels()
+      Hodler.get('scene').tank.nextWheels()
     }
     this.add(wheelButton)
     this.buttons.push(wheelButton)
@@ -76,9 +75,9 @@ class BuildScene extends Scene {
     saveButton.onClick = () => {
       saveButton.isEnabled = false
       Engine.switch(campaignScene, undefined, { model: {
-        'chassis': this.tanks[0].chassisModels.get(),
-        'wheels': this.tanks[0].wheelModels.get(),
-        'weapon': this.tanks[0].weaponModels.get(),
+        'chassis': this.tank.chassisModels.get(),
+        'wheels': this.tank.wheelModels.get(),
+        'weapon': this.tank.weaponModels.get(),
       }})
     }
     this.add(saveButton)
@@ -94,13 +93,11 @@ class BuildScene extends Scene {
   }
 
   tick(tpf) {
-    this.tanks.forEach((tank) => {
-      tank.wheels.wheelFL.tick(-tpf)
-      tank.wheels.wheelFR.tick(tpf)
-      tank.wheels.wheelBL.tick(-tpf)
-      tank.wheels.wheelBR.tick(tpf)
-      tank.rotation.y += tpf
-    })
+    this.tank.wheels.wheelFL.tick(-tpf)
+    this.tank.wheels.wheelFR.tick(tpf)
+    this.tank.wheels.wheelBL.tick(-tpf)
+    this.tank.wheels.wheelBR.tick(tpf)
+    this.tank.rotation.y += tpf
     this.buttons.forEach((button) => {
       button.tick(tpf)
     })

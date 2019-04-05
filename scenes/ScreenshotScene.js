@@ -44,7 +44,7 @@ class ScreenshotScene extends Scene {
     this.tanks.push(tank3)
     this.add(tank3)
 
-    let button = new MenuButton('vax albina')
+    let button = new Button3D('vax albina')
     button.position.set(0, 0, 1.75)
     button.lookAt(Hodler.get('camera').position)
     this.add(button)

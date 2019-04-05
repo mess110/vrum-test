@@ -18,7 +18,6 @@ class MenuScene extends Scene {
     sky.position.set(0, 0, -30)
     this.add(sky)
 
-    this.tanks = []
     this.buttons = []
 
     let tank = new Tank()
@@ -28,9 +27,8 @@ class MenuScene extends Scene {
     tank.setModel(tank.chassisModels.items.shuffle().first())
     tank.changeWheels(tank.wheelModels.items.shuffle().first())
     tank.changeWeapon(tank.weaponModels.items.shuffle().first())
-    this.tanks.push(tank)
-    this.add(tank)
     // tank.visible = false
+    this.add(tank)
 
     this.initClouds()
 
@@ -166,9 +164,6 @@ class MenuScene extends Scene {
   }
 
   tick(tpf) {
-    this.tanks.forEach((tank) => {
-      // tank.tick(tpf)
-    })
     this.buttons.forEach((button) => {
       button.tick(tpf)
     })
