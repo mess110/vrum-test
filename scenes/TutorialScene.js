@@ -17,15 +17,6 @@ class TutorialScene extends Scene {
     sky.lookAt(camera.position)
     this.add(sky)
 
-    this.coins = []
-    this.bullets = []
-
-    let coin = new Coin()
-    coin.position.set(10, 2, 16)
-    this.add(coin)
-    this.coins.push(coin)
-    this.coin = coin
-
     this.collidables = [island]
 
     let tank = new Player()
@@ -33,9 +24,17 @@ class TutorialScene extends Scene {
     this.add(tank)
     this.tank = tank
 
-    this.tutorialText = Utils.plane({ map: 'tutorial-wasd.png', size: 30, transparent: true, wSegments: 2, hSegments: 2, side: THREE.FrontSide })
+    let tutorialText = '    WASD KEYS   TO MOVE'
+    if (VirtualController.isAvailable()) {
+      tutorialText = '          LEFT              JOYSTICK     TO MOVE'
+    }
+    this.tutorialText = new BaseText({
+      text: tutorialText, fillStyle: 'white', align: 'center',
+      canvasW: 512, canvasH: 512,
+      font: '72px luckiest-guy'})
+    this.tutorialText.scale.setScalar(8)
     this.tutorialText.rotation.set(-Math.PI / 2, 0, 0)
-    this.tutorialText.position.set(0, 0.1, 0)
+    this.tutorialText.position.set(0, 0.1, 18)
     this.add(this.tutorialText)
 
     this.tutorialStage = 0
@@ -43,37 +42,87 @@ class TutorialScene extends Scene {
 
   setTutorial(key) {
     let easing = TWEEN.Easing.Cubic.InOut
-    new FadeModifier(this.tutorialText, 1, 0, 500, easing).start()
+    if (!isBlank(this.fadeIn)) {
+      this.fadeIn.stop()
+      this.fadeIn = undefined
+    }
+    if (!isBlank(this.fadeOut)) {
+      this.fadeOut.stop()
+      this.fadeOut = undefined
+    }
+    this.fadeIn = new FadeModifier(this.tutorialText, 1, 0, 500, easing)
+    this.fadeIn.start()
     this.setTimeout(() => {
-      this.tutorialText.material.map = AssetManager.get(key)
-      new FadeModifier(this.tutorialText, 0, 1, 500, easing).start()
+      this.tutorialText.setText(key)
+      this.fadeOut = new FadeModifier(this.tutorialText, 0, 1, 500, easing)
+      this.fadeOut.start()
     }, 600)
     return
+  }
+
+  uninit() {
+    this.tank.uninit()
   }
 
   tick(tpf) {
     Measure.clearLines()
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
 
-    this.coins.forEach((coin) => {
-      coin.rotation.y += tpf
+    PoolManager.itemsInUse(Coin).forEach((coin) => {
+      coin.tick(tpf)
+      let distance = Measure.distanceBetween(this.tank, coin)
+      if (distance < 3) {
+        coin.pickup()
+      }
     })
-    this.bullets.forEach((bullet) => {
-      bullet.rotation.z += tpf * 5
-      bullet.translateZ(tpf * 35)
+    PoolManager.itemsInUse(Bullet).forEach((bullet) => {
+      bullet.tick(tpf)
     })
 
     this.tank.tick(tpf)
 
-    if (this.tutorialStage == 0) {
-      let distance = Measure.distanceBetween(this.tank, this.coins[0])
-      if (distance < 3) {
+    if (this.tutorialStage == 4) {
+      if (this.tank.position.x > 35) {
         this.tutorialStage += 1
-        this.coins.forEach((coin) => {
-          this.remove(coin)
-        })
-        this.coins = []
-        this.setTutorial('tutorial-aim.png')
+        Engine.switch(menuScene)
+      }
+    }
+
+    if (this.tutorialStage == 3) {
+      PoolManager.itemsInUse(Bullet).forEach((bullet) => {
+        let distance = Measure.distanceBetween(bullet, this.practiceDummy)
+        if (distance < 4) {
+          PoolManager.release(bullet)
+          this.tutorialStage += 1
+          new FadeModifier(this.practiceDummy, 1, 0, 500).start()
+          this.setTimeout(() => {
+            this.setTutorial('  EXIT STAGE   RIGHT')
+            this.remove(this.practiceDummy)
+          }, 500)
+        }
+      })
+    }
+
+    if (this.tutorialStage == 2) {
+      if (this.tank.controlWeapon.isMoving()) {
+        this.tutorialStage += 1
+        let tutorialText = 'PRESS SPACE TO SHOOT'
+        if (VirtualController.isAvailable()) {
+          tutorialText = '          LEFT              JOYSTICK     TO SHOOT'
+        }
+        this.setTutorial(tutorialText)
+      }
+    }
+
+    if (this.tutorialStage == 1) {
+      if (PoolManager.itemsInUse(Coin).size() == 0) {
+        this.tutorialStage += 1
+
+        let tutorialText = 'ARROW KEYS TO AIM'
+        if (VirtualController.isAvailable()) {
+          tutorialText = '          LEFT              JOYSTICK     TO AIM'
+        }
+        this.setTutorial(tutorialText)
 
         let practiceDummy = AssetManager.clone('practice.dummy.001.glb')
         practiceDummy.position.set(0, 0, -16)
@@ -81,55 +130,28 @@ class TutorialScene extends Scene {
         this.practiceDummy = practiceDummy
       }
     }
-    if (this.tutorialStage == 1) {
-      this.bullets.forEach((bullet) => {
-        let distance = Measure.distanceBetween(bullet, this.practiceDummy)
-        if (distance < 4) {
-          this.tutorialStage += 1
-          this.remove(this.practiceDummy)
-          this.setTutorial('tutorial-exit.png')
-        }
-      })
-    }
 
-    if (this.tutorialStage == 2) {
-      if (this.tank.position.x > 35) {
+    if (this.tutorialStage == 0) {
+      if (this.tank.control.isMoving()) {
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(9, 2, 16) })
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(6, 2, 18) })
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(3, 2, 19) })
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(0, 2, 20) })
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(-3, 2, 19) })
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(-6, 2, 18) })
+        PoolManager.spawn(Coin, { position: new THREE.Vector3(-9, 2, 16) })
+
         this.tutorialStage += 1
-        Engine.switch(menuScene)
+        this.setTutorial(' PICK UP ALL  THE COINS')
       }
     }
   }
 
-  shoot() {
-    let bullet = AssetManager.clone('ammo.002.glb')
-    let pos = this.tank.position.clone()
-    pos.y = 2.65
-    bullet.position.copy(pos)
-
-    bullet.rotation.copy(this.tank.weapon.rotation)
-
-    bullet.translateZ(2.5)
-    this.bullets.push(bullet)
-    this.add(bullet)
-    console.log('fire')
-  }
-
   doKeyboardEvent(event) {
     this.tank.doKeyboardEvent(event)
-
-    if (event.type == 'keydown' && event.code == 'Space') {
-      this.shoot()
-    }
   }
 
   doGamepadEvent(event) {
     this.tank.doGamepadEvent(event)
-
-    if (event.type !== 'gamepadtick-vrum') { return }
-    let gamepad = event[0]
-    if (isBlank(gamepad)) { return }
-    if (gamepad.buttons[0].pressed) {
-      this.shoot()
-    }
   }
 }

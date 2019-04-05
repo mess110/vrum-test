@@ -7,6 +7,23 @@ Config.instance.vax = {
   groundColor: '#55AA55'
 }
 
+PoolManager.on('spawn', Bullet, (item, options) => {
+  item.from(options.from)
+  Hodler.get('scene').add(item)
+})
+PoolManager.on('release', Bullet, (item) => {
+  Hodler.get('scene').remove(item)
+})
+
+PoolManager.on('spawn', Coin, (item, options) => {
+  item.reset()
+  item.position.copy(options.position)
+  Hodler.get('scene').add(item)
+})
+PoolManager.on('release', Coin, (item, options) => {
+  Hodler.get('scene').remove(item)
+})
+
 let gameScene = new GameScene()
 let menuScene = new MenuScene()
 let buildScene = new BuildScene()
@@ -18,10 +35,6 @@ let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 let sceneAfterLoading = Config.instance.engine.prod ? menuScene : tutorialScene
 
 let loadingScene = new LoadingScene(sceneAfterLoading, [
-  { type: 'image', path: 'assets/tutorial-wasd.png' },
-  { type: 'image', path: 'assets/tutorial-aim.png' },
-  { type: 'image', path: 'assets/tutorial-exit.png' },
-
   { type: 'model', path: 'assets/models/ammo.001.glb' },
   { type: 'model', path: 'assets/models/ammo.002.glb' },
   // { type: 'model', path: 'assets/models/barrel.001.glb' }, // already loaded
