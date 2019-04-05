@@ -1,6 +1,7 @@
 class MenuScene extends Scene {
   init(options) {
     addBaseLight(this)
+    Utils.addCEButton({ type: 'fullscreen', position: 'bottom-left' })
 
     let camera = Hodler.get('camera')
     camera.position.set(0, 10, 15)
@@ -123,7 +124,7 @@ class MenuScene extends Scene {
     this.buttons.push(creditsButton)
 
     this.keyboardFocused = undefined
-    this.leftArray = [0, 1, 2].toCyclicArray()
+    this.leftArray = [0, 1, 2, 3].toCyclicArray()
     this.leftArray.prev()
 
     this.lastGamepadEventTime = 0
@@ -136,6 +137,10 @@ class MenuScene extends Scene {
     gameName.lookAt(camera.position)
     gameName.position.set(3.8, -1, 11)
     this.add(gameName)
+  }
+
+  uninit() {
+    Utils.removeCEButtons()
   }
 
   initClouds() {
