@@ -1,6 +1,6 @@
 Config.instance.engine.prod = true
-Config.instance.engine.debug = true
-Config.instance.window.showStatsOnStart = true
+Config.instance.engine.debug = !Config.instance.engine.prod
+Config.instance.window.showStatsOnStart = !Config.instance.engine.prod
 
 Config.instance.vax = {
   skyColor: '#29bbf4',
@@ -24,15 +24,16 @@ PoolManager.on('release', Coin, (item, options) => {
   Hodler.get('scene').remove(item)
 })
 
-let gameScene = new GameScene()
 let menuScene = new MenuScene()
+let campaignScene = new CampaignScene()
+let lobbyBrowserScene = new LobbyBrowserScene()
 let buildScene = new BuildScene()
 let screenshotScene = new ScreenshotScene()
 let tutorialScene = new TutorialScene()
 
 let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 
-let sceneAfterLoading = Config.instance.engine.prod ? menuScene : tutorialScene
+let sceneAfterLoading = Config.instance.engine.prod ? menuScene : campaignScene
 
 let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/ammo.001.glb' },

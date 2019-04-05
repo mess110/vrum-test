@@ -18,11 +18,6 @@ class MenuScene extends Scene {
     sky.position.set(0, 0, -30)
     this.add(sky)
 
-    // let sky = new Sky()
-    // sky.updateSun(sky.distance, 0.1, sky.azimuth)
-    // this.add(sky)
-    // this.sky = sky
-
     this.tanks = []
     this.buttons = []
 
@@ -47,7 +42,6 @@ class MenuScene extends Scene {
     let ground = AssetManager.clone('ground.001.glb')
     ground.position.set(10, -8, 4.9)
     ground.rotation.set(-0.5880026035475676, -1, 0)
-    // ground.scale.set(8, 3, 25)
     ground.scale.setScalar(3)
     ground.translateZ(-18.5 * 2 - 7)
     this.add(ground)
@@ -85,7 +79,7 @@ class MenuScene extends Scene {
     let tutorialButton = new Button3D('tutorial')
     tutorialButton.position.set(-3, 1, 0)
     tutorialButton.lookAt(Hodler.get('camera').position)
-    tutorialButton.position.set(-8, 3, 1)
+    tutorialButton.position.set(-8, 5.5, 0)
     tutorialButton.rotation.x -= 0.1
     tutorialButton.onClick = () => {
       tutorialButton.isEnabled = false
@@ -94,10 +88,10 @@ class MenuScene extends Scene {
     this.add(tutorialButton)
     this.buttons.push(tutorialButton)
 
-    let playButton = new Button3D('play')
+    let playButton = new Button3D('campaign')
     playButton.position.set(-3, 1, 0)
     playButton.lookAt(Hodler.get('camera').position)
-    playButton.position.set(-8, 0, 2)
+    playButton.position.set(-8, 2.8, 1)
     playButton.rotation.x -= 0.1
     playButton.onClick = () => {
       playButton.isEnabled = false
@@ -105,6 +99,18 @@ class MenuScene extends Scene {
     }
     this.add(playButton)
     this.buttons.push(playButton)
+
+    let multiplayerButton = new Button3D('multiplayer')
+    multiplayerButton.position.set(-3, 1, 0)
+    multiplayerButton.lookAt(Hodler.get('camera').position)
+    multiplayerButton.position.set(-8, 0, 2)
+    multiplayerButton.rotation.x -= 0.1
+    multiplayerButton.onClick = () => {
+      multiplayerButton.isEnabled = false
+      Engine.switch(lobbyBrowserScene)
+    }
+    this.add(multiplayerButton)
+    this.buttons.push(multiplayerButton)
 
     let creditsButton = new Button3D('credits')
     creditsButton.position.set(-3, 1, 0)
@@ -123,6 +129,15 @@ class MenuScene extends Scene {
     this.leftArray.prev()
 
     this.lastGamepadEventTime = 0
+
+    let gameName = new BaseText({
+      text: 'Vax Albina', fillStyle: 'white', align: 'center',
+      canvasW: 512, canvasH: 512,
+      font: '72px luckiest-guy'})
+    gameName.scale.setScalar(2.5)
+    gameName.lookAt(camera.position)
+    gameName.position.set(3.8, -1, 11)
+    this.add(gameName)
   }
 
   initClouds() {

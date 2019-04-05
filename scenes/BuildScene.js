@@ -75,7 +75,11 @@ class BuildScene extends Scene {
     saveButton.lookAt(Hodler.get('camera').position)
     saveButton.onClick = () => {
       saveButton.isEnabled = false
-      Engine.switch(gameScene)
+      Engine.switch(campaignScene, undefined, { model: {
+        'chassis': this.tanks[0].chassisModels.get(),
+        'wheels': this.tanks[0].wheelModels.get(),
+        'weapon': this.tanks[0].weaponModels.get(),
+      }})
     }
     this.add(saveButton)
     this.buttons.push(saveButton)
