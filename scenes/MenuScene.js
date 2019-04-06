@@ -2,6 +2,7 @@ class MenuScene extends Scene {
   init(options) {
     addBaseLight(this)
     Utils.addCEButton({ type: 'fullscreen', position: 'bottom-left' })
+    Utils.setCursor('assets/hand.png')
 
     let camera = Hodler.get('camera')
     camera.position.set(0, 10, 15)
@@ -191,8 +192,9 @@ class MenuScene extends Scene {
     if (['ArrowUp', 'ArrowDown'].includes(event.code)) {
       if (event.type !== 'keydown') { return }
 
-      let hasHover = this.buttons[0].isHovered || this.buttons[1].isHovered || this.buttons[2].isHovered
+      let hasHover = false
       this.buttons.forEach((button) => {
+        hasHover = hasHover || button.isHovered
         button.isHovered = false
       })
 

@@ -1,6 +1,7 @@
 class TutorialScene extends Scene {
   init(options) {
     addBaseLight(this)
+    Utils.setCursor('none')
 
     let camera = this.getCamera()
     camera.position.set(0, 35, 25)

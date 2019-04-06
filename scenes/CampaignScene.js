@@ -1,5 +1,7 @@
 class CampaignScene extends Scene {
   init(options) {
+    Utils.setCursor('none')
+
     if (isBlank(options)) { options = {} }
     if (isBlank(options.model)) { options.model = {} }
     if (isBlank(options.model.chassis)) { options.model.chassis = 'chassis.001.glb' }
@@ -25,23 +27,32 @@ class CampaignScene extends Scene {
     this.add(sky)
 
     this.collidables = [island]
+
+    let tank = new Player()
+    tank.rayScanner.collidables = this.collidables
+    tank.setModel(options.model.chassis)
+    tank.changeWheels(options.model.wheels)
+    tank.changeWeapon(options.model.weapon)
+    this.add(tank)
+    this.tank = tank
   }
 
   uninit() {
-    // this.tank.uninit()
+    this.tank.uninit()
   }
 
   tick(tpf) {
-    Utils.lerpCamera(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 35, 25))
+    Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
+    this.tank.tick(tpf)
   }
 
   doKeyboardEvent(event) {
     // console.log(`${event.type} ${event.code} (${event.which})`)
-    // this.tank.doKeyboardEvent(event)
+    this.tank.doKeyboardEvent(event)
   }
 
   doGamepadEvent(event) {
     // console.log(event.type)
-    // this.tank.doGamepadEvent(event)
+    this.tank.doGamepadEvent(event)
   }
 }

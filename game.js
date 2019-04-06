@@ -36,6 +36,8 @@ let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 let sceneAfterLoading = Config.instance.engine.prod ? menuScene : campaignScene
 
 let loadingScene = new LoadingScene(sceneAfterLoading, [
+  { type: 'image', path: 'assets/hand.png' },
+
   { type: 'model', path: 'assets/models/ammo.001.glb' },
   { type: 'model', path: 'assets/models/ammo.002.glb' },
   // { type: 'model', path: 'assets/models/barrel.001.glb' }, // already loaded
@@ -43,6 +45,8 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/button.fg.001.glb' },
   { type: 'model', path: 'assets/models/chassis.001.glb' },
   { type: 'model', path: 'assets/models/chassis.002.glb' },
+  { type: 'model', path: 'assets/models/chassis.003.glb' },
+  { type: 'model', path: 'assets/models/chassis.004.glb' },
   { type: 'model', path: 'assets/models/cloud.001.glb' },
   { type: 'model', path: 'assets/models/coin.001.glb' },
   { type: 'model', path: 'assets/models/flag.001.glb' },
@@ -97,6 +101,8 @@ const addBaseLight = (scene) => {
 }
 
 let sceneAfterInit = Config.instance.engine.prod ? logosScene : loadingScene
+
+Utils.setCursor('none')
 
 Engine.start(sceneAfterInit, [
   { type: 'font', path: 'assets/luckiest-guy' },
