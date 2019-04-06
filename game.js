@@ -47,6 +47,7 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/chassis.002.glb' },
   { type: 'model', path: 'assets/models/chassis.003.glb' },
   { type: 'model', path: 'assets/models/chassis.004.glb' },
+  { type: 'model', path: 'assets/models/chassis.005.glb' },
   { type: 'model', path: 'assets/models/cloud.001.glb' },
   { type: 'model', path: 'assets/models/coin.001.glb' },
   { type: 'model', path: 'assets/models/flag.001.glb' },
