@@ -1,32 +1,12 @@
-class CampaignScene extends Scene {
+class CampaignScene extends GameScene {
   init(options) {
-    Utils.setCursor('none')
+    super.init(options)
 
     if (isBlank(options)) { options = {} }
     if (isBlank(options.model)) { options.model = {} }
     if (isBlank(options.model.chassis)) { options.model.chassis = 'chassis.001.glb' }
-    if (isBlank(options.model.wheels)) { options.model.wheels = 'wheels.001.glb' }
+    if (isBlank(options.model.wheels)) { options.model.wheels = 'wheel.001.glb' }
     if (isBlank(options.model.weapon)) { options.model.weapon = 'weapon.001.glb' }
-    console.log(options)
-
-    addBaseLight(this)
-
-    let camera = this.getCamera()
-    camera.position.set(0, 35, 25)
-    camera.lookAt(new THREE.Vector3(0, 0, 0))
-    camera.position.set(0, 80, 80)
-
-    let island = AssetManager.clone('island.002.glb')
-    // Utils.addOutline(island)
-    this.add(island)
-    this.island = island
-
-    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
-    sky.position.set(0, 0, -100)
-    sky.lookAt(camera.position)
-    this.add(sky)
-
-    this.collidables = [island]
 
     let tank = new Player()
     tank.rayScanner.collidables = this.collidables
@@ -35,6 +15,27 @@ class CampaignScene extends Scene {
     tank.changeWeapon(options.model.weapon)
     this.add(tank)
     this.tank = tank
+
+    this.enemies = []
+
+    let enemy = new Bot()
+    enemy.position.set(15, 0, 15)
+    enemy.rayScanner.collidables = this.collidables
+    this.add(enemy)
+    this.enemies.push(enemy)
+
+    let barrel = AssetManager.clone('barrel.001.glb')
+    barrel.position.set(15, 0, 0)
+    this.add(barrel)
+
+    tank.rayScanner.addCollidable(barrel)
+    enemy.rayScanner.addCollidable(barrel)
+
+    tank.rayScanner.addCollidable(enemy)
+    enemy.rayScanner.addCollidable(tank)
+
+    let vector = new THREE.Vector3();
+    this.hitVector = vector
   }
 
   uninit() {
@@ -42,8 +43,29 @@ class CampaignScene extends Scene {
   }
 
   tick(tpf) {
+    super.tick(tpf)
+
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
     this.tank.tick(tpf)
+
+    PoolManager.itemsInUse(Bullet).forEach((bullet) => {
+      this.enemies.forEach((enemy) => {
+        this.hitVector.setFromMatrixPosition(enemy.boundingCube.matrixWorld);
+
+
+        let distance = Measure.distanceBetween(bullet, this.hitVector)
+        if (distance < 10 && Config.instance.engine.debug) {
+          Measure.addLineBetween(bullet, this.hitVector, 'yellow')
+        }
+        if (distance < 2) {
+          PoolManager.release(bullet)
+        }
+      })
+    })
+
+    this.enemies.forEach((enemy) => {
+      enemy.tick(tpf)
+    })
   }
 
   doKeyboardEvent(event) {

@@ -8,8 +8,19 @@
 
         <title>Vax Albina</title>
         <style type="text/css" media="all">
-html, body { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #000; }
-canvas#vrum-dom { width: 100%; height: 100%; }
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #000;
+}
+
+canvas#vrum-dom {
+    width: 100%;
+    height: 100%;
+}
         </style>
     </head>
     <body>
@@ -18,16 +29,18 @@ canvas#vrum-dom { width: 100%; height: 100%; }
         <script>
             loadVrumScripts([
                 'scenes/BuildScene.js',
-                'scenes/CampaignScene.js',
                 'scenes/LobbyBrowserScene.js',
                 'scenes/MenuScene.js',
                 'scenes/ScreenshotScene.js',
+                'scenes/GameScene.js',
+                'scenes/CampaignScene.js',
                 'scenes/TutorialScene.js',
 
                 'models/Bullet.js',
                 'models/Coin.js',
                 'models/Tank.js',
                 'models/Player.js',
+                'models/Bot.js',
 
                 'game.js',
             ])

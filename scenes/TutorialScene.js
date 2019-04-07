@@ -1,64 +1,23 @@
-class TutorialScene extends Scene {
+class TutorialScene extends GameScene {
   init(options) {
-    addBaseLight(this)
-    Utils.setCursor('none')
-
-    let camera = this.getCamera()
-    camera.position.set(0, 35, 25)
-    camera.lookAt(new THREE.Vector3(0, 0, 0))
-    camera.position.set(0, 80, 80)
-
-    let island = AssetManager.clone('island.002.glb')
-    // Utils.addOutline(island)
-    this.add(island)
-    this.island = island
-
-    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
-    sky.position.set(0, 0, -100)
-    sky.lookAt(camera.position)
-    this.add(sky)
-
-    this.collidables = [island]
+    super.init(options)
 
     let tank = new Player()
     tank.rayScanner.collidables = this.collidables
     this.add(tank)
     this.tank = tank
 
-    let tutorialText = '    WASD KEYS   TO MOVE'
+    let infoText = '    WASD KEYS   TO MOVE'
     if (VirtualController.isAvailable()) {
-      tutorialText = '          LEFT              JOYSTICK     TO MOVE'
+      infoText = '          LEFT              JOYSTICK     TO MOVE'
+    } else {
     }
-    this.tutorialText = new BaseText({
-      text: tutorialText, fillStyle: 'white', align: 'center',
-      canvasW: 512, canvasH: 512,
-      font: '72px luckiest-guy'})
-    this.tutorialText.scale.setScalar(8)
-    this.tutorialText.rotation.set(-Math.PI / 2, 0, 0)
-    this.tutorialText.position.set(0, 0.1, 18)
-    this.add(this.tutorialText)
+    this.setInfoMsg(infoText)
 
     this.tutorialStage = 0
-  }
 
-  setTutorial(key) {
-    let easing = TWEEN.Easing.Cubic.InOut
-    if (!isBlank(this.fadeIn)) {
-      this.fadeIn.stop()
-      this.fadeIn = undefined
-    }
-    if (!isBlank(this.fadeOut)) {
-      this.fadeOut.stop()
-      this.fadeOut = undefined
-    }
-    this.fadeIn = new FadeModifier(this.tutorialText, 1, 0, 500, easing)
-    this.fadeIn.start()
-    this.setTimeout(() => {
-      this.tutorialText.setText(key)
-      this.fadeOut = new FadeModifier(this.tutorialText, 0, 1, 500, easing)
-      this.fadeOut.start()
-    }, 600)
-    return
+    let vector = new THREE.Vector3();
+    this.hitVector = vector
   }
 
   uninit() {
@@ -66,18 +25,18 @@ class TutorialScene extends Scene {
   }
 
   tick(tpf) {
-    Measure.clearLines()
+    super.tick(tpf)
+
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
 
     PoolManager.itemsInUse(Coin).forEach((coin) => {
       coin.tick(tpf)
-      let distance = Measure.distanceBetween(this.tank, coin)
+      this.hitVector.setFromMatrixPosition(this.tank.boundingCube.matrixWorld);
+
+      let distance = Measure.distanceBetween(coin, this.hitVector)
       if (distance < 3) {
         coin.pickup()
       }
-    })
-    PoolManager.itemsInUse(Bullet).forEach((bullet) => {
-      bullet.tick(tpf)
     })
 
     this.tank.tick(tpf)
@@ -97,7 +56,7 @@ class TutorialScene extends Scene {
           this.tutorialStage += 1
           new FadeModifier(this.practiceDummy, 1, 0, 500).start()
           this.setTimeout(() => {
-            this.setTutorial('  EXIT STAGE   RIGHT')
+            this.setInfoMsg('  EXIT STAGE   RIGHT')
             this.remove(this.practiceDummy)
           }, 500)
         }
@@ -107,11 +66,11 @@ class TutorialScene extends Scene {
     if (this.tutorialStage == 2) {
       if (this.tank.controlWeapon.isMoving()) {
         this.tutorialStage += 1
-        let tutorialText = 'PRESS SPACE TO SHOOT'
+        let infoText = 'PRESS SPACE TO SHOOT'
         if (VirtualController.isAvailable()) {
-          tutorialText = '          LEFT              JOYSTICK     TO SHOOT'
+          infoText = '          LEFT              JOYSTICK     TO SHOOT'
         }
-        this.setTutorial(tutorialText)
+        this.setInfoMsg(infoText)
       }
     }
 
@@ -119,11 +78,11 @@ class TutorialScene extends Scene {
       if (PoolManager.itemsInUse(Coin).size() == 0) {
         this.tutorialStage += 1
 
-        let tutorialText = 'ARROW KEYS TO AIM'
+        let infoText = 'ARROW KEYS TO AIM'
         if (VirtualController.isAvailable()) {
-          tutorialText = '          LEFT              JOYSTICK     TO AIM'
+          infoText = '          LEFT              JOYSTICK     TO AIM'
         }
-        this.setTutorial(tutorialText)
+        this.setInfoMsg(infoText)
 
         let practiceDummy = AssetManager.clone('practice.dummy.001.glb')
         practiceDummy.position.set(0, 0, -16)
@@ -143,7 +102,7 @@ class TutorialScene extends Scene {
         PoolManager.spawn(Coin, { position: new THREE.Vector3(-9, 2, 16) })
 
         this.tutorialStage += 1
-        this.setTutorial(' PICK UP ALL  THE COINS')
+        this.setInfoMsg(' PICK UP ALL  THE COINS')
       }
     }
   }

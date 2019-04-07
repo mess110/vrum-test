@@ -35,8 +35,13 @@ class Player extends Tank {
     }
 
     let rayScanner = new RayScanner()
-    // rayScanner.drawLines = true
+    rayScanner.drawLines = Config.instance.engine.debug
     this.rayScanner = rayScanner
+
+    let boundingCube = Utils.boundingBox({size: 4})
+    boundingCube.position.y = 2
+    this.add(boundingCube)
+    this.boundingCube = boundingCube
   }
 
   uninit() {
