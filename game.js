@@ -1,6 +1,7 @@
 Config.instance.engine.prod = true
 Config.instance.engine.debug = !Config.instance.engine.prod
 Config.instance.window.showStatsOnStart = !Config.instance.engine.prod
+Config.instance.window.showStatsOnStart = true
 
 Config.instance.vax = {
   skyColor: '#29bbf4',

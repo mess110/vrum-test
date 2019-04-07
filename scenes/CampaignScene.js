@@ -36,6 +36,9 @@ class CampaignScene extends GameScene {
 
     let vector = new THREE.Vector3();
     this.hitVector = vector
+
+    let botControls = new BotControls()
+    this.botControls = botControls
   }
 
   uninit() {
@@ -48,23 +51,25 @@ class CampaignScene extends GameScene {
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
     this.tank.tick(tpf)
 
-    PoolManager.itemsInUse(Bullet).forEach((bullet) => {
-      this.enemies.forEach((enemy) => {
-        this.hitVector.setFromMatrixPosition(enemy.boundingCube.matrixWorld);
-
-
-        let distance = Measure.distanceBetween(bullet, this.hitVector)
-        if (distance < 10 && Config.instance.engine.debug) {
-          Measure.addLineBetween(bullet, this.hitVector, 'yellow')
-        }
-        if (distance < 2) {
-          PoolManager.release(bullet)
-        }
-      })
-    })
-
     this.enemies.forEach((enemy) => {
       enemy.tick(tpf)
+      this.botControls.tick(tpf, enemy)
+
+      PoolManager.itemsInUse(Bullet).forEach((bullet) => {
+        this.hitVector.setFromMatrixPosition(enemy.boundingCube.matrixWorld);
+
+        let distance = Measure.distanceBetween(bullet, this.hitVector)
+        // if (distance < 10 && Config.instance.engine.debug) {
+          // Measure.addLineBetween(bullet, this.hitVector, 'yellow')
+        // }
+        if (distance < 2) {
+          PoolManager.release(bullet)
+          // let jsonParticleData = AssetManager.get('explosion.json').particle
+          // let explosion = new BaseParticle(jsonParticleData)
+          // explosion.position.copy(bullet.position)
+          // this.add(explosion)
+        }
+      })
     })
   }
 

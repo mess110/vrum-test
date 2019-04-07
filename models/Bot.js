@@ -12,16 +12,24 @@ class Bot extends Player {
   }
 
   move(direction) {
-    this.control.doKeyboardEvent({code: this.control.keybindings['Forward'], type: 'keyup'})
-    this.control.doKeyboardEvent({code: this.control.keybindings['Backward'], type: 'keyup'})
-    this.control.doKeyboardEvent({code: this.control.keybindings['Left'], type: 'keyup'})
-    this.control.doKeyboardEvent({code: this.control.keybindings['Right'], type: 'keyup'})
-
-    this.control.doKeyboardEvent({code: this.control.keybindings[direction], type: 'keydown'})
+    this.controlAction(this.control, direction)
   }
 
   turn(direction) {
-    this.controlWeapon.doKeyboardEvent({code: this.controlWeapon.keybindings[direction], type: 'keydown'})
-    this.controlWeapon.doKeyboardEvent({code: this.controlWeapon.keybindings[direction], type: 'keyup'})
+    this.controlAction(this.controlWeapon, direction)
+  }
+
+  controlAction(control, direction) {
+    control.doKeyboardEvent({code: control.keybindings['Forward'], type: 'keyup'})
+    control.doKeyboardEvent({code: control.keybindings['Backward'], type: 'keyup'})
+    control.doKeyboardEvent({code: control.keybindings['Left'], type: 'keyup'})
+    control.doKeyboardEvent({code: control.keybindings['Right'], type: 'keyup'})
+
+    if (!isArray(direction)) {
+      direction = [direction]
+    }
+    direction.forEach((dir) => {
+      control.doKeyboardEvent({code: control.keybindings[dir], type: 'keydown'})
+    })
   }
 }
