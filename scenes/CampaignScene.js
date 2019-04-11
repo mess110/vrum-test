@@ -2,61 +2,36 @@ class CampaignScene extends GameScene {
   init(options) {
     super.init(options)
 
-    if (isBlank(options)) { options = {} }
-    if (isBlank(options.model)) { options.model = {} }
-    if (isBlank(options.model.chassis)) { options.model.chassis = 'chassis.001.glb' }
-    if (isBlank(options.model.wheels)) { options.model.wheels = 'wheel.001.glb' }
-    if (isBlank(options.model.weapon)) { options.model.weapon = 'weapon.001.glb' }
+    this.tank = this.addPlayer(options)
+    this.addBot({position: { x: 15, z: 15 }})
+    this.addBot({position: { x: -15, z: 15 }})
 
-    let tank = new Player()
-    tank.rayScanner.collidables = this.collidables
-    tank.setModel(options.model.chassis)
-    tank.changeWheels(options.model.wheels)
-    tank.changeWeapon(options.model.weapon)
-    this.add(tank)
-    this.tank = tank
-
-    this.enemies = []
-
-    let enemy = new Bot()
-    enemy.position.set(15, 0, 15)
-    enemy.rayScanner.collidables = this.collidables
-    this.add(enemy)
-    this.enemies.push(enemy)
-
-    let barrel = AssetManager.clone('barrel.001.glb')
-    barrel.position.set(15, 0, 0)
-    this.add(barrel)
-
-    tank.rayScanner.addCollidable(barrel)
-    enemy.rayScanner.addCollidable(barrel)
-
-    tank.rayScanner.addCollidable(enemy)
-    enemy.rayScanner.addCollidable(tank)
-
-    let vector = new THREE.Vector3();
-    this.hitVector = vector
-
-    let botControls = new BotControls()
-    this.botControls = botControls
+    // let barrel = AssetManager.clone('barrel.001.glb')
+    // barrel.position.set(15, 0, 0)
+    // this.add(barrel)
   }
 
-  uninit() {
-    this.tank.uninit()
+  addBot(options) {
+    let tank = this.addPlayer(options)
+    tank.botControls = new BotControls()
+    return tank
   }
 
   tick(tpf) {
     super.tick(tpf)
 
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
-    this.tank.tick(tpf)
+    this.doMobileEvent(this.tank)
 
-    this.enemies.forEach((enemy) => {
-      enemy.tick(tpf)
-      this.botControls.tick(tpf, enemy)
+    this.characters.forEach((character) => {
+      character.tick(tpf)
+
+      if (!isBlank(character.botControls)) {
+        character.botControls.tick(tpf, character)
+      }
 
       PoolManager.itemsInUse(Bullet).forEach((bullet) => {
-        this.hitVector.setFromMatrixPosition(enemy.boundingCube.matrixWorld);
+        this.hitVector.setFromMatrixPosition(character.boundingCube.matrixWorld);
 
         let distance = Measure.distanceBetween(bullet, this.hitVector)
         // if (distance < 10 && Config.instance.engine.debug) {

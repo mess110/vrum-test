@@ -30,7 +30,7 @@ class BotControls {
       ['Backward', 'Right'],
     ]
 
-    bot.shoot()
+    // bot.shoot()
     bot.move(direction.shuffle().first())
     bot.turn(direction.shuffle().first())
   }

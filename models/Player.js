@@ -6,6 +6,8 @@ class Player extends Tank {
     this.acceleration = 2
     this.shootCooldown = 0.3
     this.timeSinceLastShot = 0
+    this.size = 4
+
 
     let control = new PositionXZRotationYControls()
     control.speed = this.speed
@@ -27,28 +29,14 @@ class Player extends Tank {
     controlWeapon.acceleration *= this.acceleration
     this.controlWeapon = controlWeapon
 
-
-    if (VirtualController.isAvailable()) {
-      control.vj.joystickRight.destroy()
-      controlWeapon.vj.joystickLeft.destroy()
-      controlWeapon.vjbindings.TargetJoystick = 'joystickRight'
-    }
-
     let rayScanner = new RayScanner()
     // rayScanner.drawLines = Config.instance.engine.debug
     this.rayScanner = rayScanner
 
-    let boundingCube = Utils.boundingBox({size: 4})
+    let boundingCube = Utils.boundingBox({size: this.size})
     boundingCube.position.y = 2
     this.add(boundingCube)
     this.boundingCube = boundingCube
-  }
-
-  uninit() {
-    if (VirtualController.isAvailable()) {
-      this.control.vj.uninit()
-      this.controlWeapon.vj.uninit()
-    }
   }
 
   shoot() {
@@ -59,10 +47,33 @@ class Player extends Tank {
     PoolManager.spawn(Bullet, { from: this })
   }
 
+  move(direction) {
+    this._controlAction(this.control, direction)
+  }
+
+  turn(direction) {
+    this._controlAction(this.controlWeapon, direction)
+  }
+
+  _controlAction(control, direction) {
+    control.doKeyboardEvent({code: control.keybindings['Forward'], type: 'keyup'})
+    control.doKeyboardEvent({code: control.keybindings['Backward'], type: 'keyup'})
+    control.doKeyboardEvent({code: control.keybindings['Left'], type: 'keyup'})
+    control.doKeyboardEvent({code: control.keybindings['Right'], type: 'keyup'})
+
+    if (!isArray(direction)) {
+      direction = [direction]
+    }
+    direction.forEach((dir) => {
+      control.doKeyboardEvent({code: control.keybindings[dir], type: 'keydown'})
+    })
+  }
+
   tick(tpf) {
     this.timeSinceLastShot += tpf
 
-    this.doMobileEvent(tpf)
+    this.control.tick(tpf)
+    this.controlWeapon.tick(tpf)
 
     if (this.control.isMoving()) {
       this.wheels.tick(tpf * 2)
@@ -108,21 +119,5 @@ class Player extends Tank {
         this.controlWeapon.getGamepadDeltaY(gamepad) < -0.85) {
       this.shoot()
     }
-  }
-
-  doMobileEvent(tpf) {
-    this.control.doMobileEvent()
-    this.control.tick(tpf)
-    this.controlWeapon.doMobileEvent()
-    let joystick = this.controlWeapon.getMobileTargetJoystick()
-    if (!isBlank(joystick)) {
-      let deltaX = joystick.deltaX()
-      let deltaY = joystick.deltaY()
-
-      if (deltaX > 40 || deltaX < -40 || deltaY > 40 || deltaY < -40) {
-        this.shoot()
-      }
-    }
-    this.controlWeapon.tick(tpf)
   }
 }

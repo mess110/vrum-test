@@ -2,10 +2,7 @@ class TutorialScene extends GameScene {
   init(options) {
     super.init(options)
 
-    let tank = new Player()
-    tank.rayScanner.collidables = this.collidables
-    this.add(tank)
-    this.tank = tank
+    this.tank = this.addPlayer()
 
     let infoText = '    WASD KEYS   TO MOVE'
     if (VirtualController.isAvailable()) {
@@ -15,19 +12,14 @@ class TutorialScene extends GameScene {
     this.setInfoMsg(infoText)
 
     this.tutorialStage = 0
-
-    let vector = new THREE.Vector3();
-    this.hitVector = vector
-  }
-
-  uninit() {
-    this.tank.uninit()
   }
 
   tick(tpf) {
     super.tick(tpf)
 
     Utils.lerpCamera(this.tank, new THREE.Vector3(0, 35, 25))
+    this.doMobileEvent(this.tank)
+    this.tank.tick(tpf)
 
     PoolManager.itemsInUse(Coin).forEach((coin) => {
       coin.tick(tpf)
@@ -38,8 +30,6 @@ class TutorialScene extends GameScene {
         coin.pickup()
       }
     })
-
-    this.tank.tick(tpf)
 
     if (this.tutorialStage == 4) {
       if (this.tank.position.x > 35) {
