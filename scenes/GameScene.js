@@ -13,13 +13,18 @@ class GameScene extends Scene {
     this.add(island)
     this.island = island
 
+    let islandWalk = AssetManager.clone('island.002.walk.glb')
+    islandWalk.children[0].material.visible = false
+    this.islandWalk = islandWalk
+    this.add(islandWalk)
+
     let sky = Utils.plane({size: 1000, color: '#29bbf4' })
     sky.position.set(0, 0, -100)
     sky.lookAt(camera.position)
     this.add(sky)
 
     this.characters = []
-    this.collidables = [island]
+    this.collidables = [islandWalk]
 
     this.infoText = new BaseText({
       text: '', fillStyle: 'white', align: 'center',

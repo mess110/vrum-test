@@ -23,6 +23,7 @@ cp ../../assets/models/ground.001.glb assets/models/
 cp ../../assets/models/grass.full.001.glb assets/models/
 cp ../../assets/models/island.001.glb assets/models/
 cp ../../assets/models/island.002.glb assets/models/
+cp ../../assets/models/island.002.walk.glb assets/models/
 cp ../../assets/models/rench.001.glb assets/models/
 cp ../../assets/models/tower.001.glb assets/models/
 cp ../../assets/models/tree.001.glb assets/models/

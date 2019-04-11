@@ -1,7 +1,7 @@
 Config.instance.engine.prod = true
 Config.instance.engine.debug = !Config.instance.engine.prod
 Config.instance.window.showStatsOnStart = !Config.instance.engine.prod
-Config.instance.window.showStatsOnStart = true
+// Config.instance.window.showStatsOnStart = true
 
 Config.instance.vax = {
   skyColor: '#29bbf4',
@@ -56,6 +56,7 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/rench.001.glb' },
   { type: 'model', path: 'assets/models/tower.001.glb' },
   { type: 'model', path: 'assets/models/island.002.glb' },
+  { type: 'model', path: 'assets/models/island.002.walk.glb' },
   { type: 'model', path: 'assets/models/tree.001.glb' },
   { type: 'model', path: 'assets/models/practice.dummy.001.glb' },
   { type: 'model', path: 'assets/models/wall.001.glb' },
