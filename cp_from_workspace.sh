@@ -6,6 +6,12 @@ cd ~/pr0n/vrum/workspace/games/vax-albina
 
 cp ../../assets/textures/vrum-text.png assets/
 cp ../../assets/textures/credits.png assets/
+cp ../../assets/textures/credits.png assets/
+
+cp ../../assets/textures/spe_smokeparticle.png assets/
+cp ../../assets/textures/spe_star.png assets/
+cp ../../assets/particles/hit.json assets/
+cp ../../assets/particles/sparks.json assets/
 
 cp ../../assets/models/ammo.001.glb assets/models/
 cp ../../assets/models/ammo.002.glb assets/models/
