@@ -2,9 +2,9 @@ class Tank extends THREE.Object3D {
   constructor() {
     super()
 
-    this.chassisModels = ['chassis.001.glb', 'chassis.002.glb', 'chassis.003.glb', 'chassis.004.glb', 'chassis.005.glb'].toCyclicArray()
-    this.wheelModels = ['wheel.001.glb', 'wheel.002.glb', 'wheel.003.glb'].toCyclicArray()
-    this.weaponModels = ['weapon.001.glb', 'weapon.002.glb', 'weapon.003.glb'].toCyclicArray()
+    this.chassisModels = Utils.shallowClone(CHASSISES).toCyclicArray()
+    this.wheelModels = Utils.shallowClone(WHEELS).toCyclicArray()
+    this.weaponModels = Utils.shallowClone(WEAPONS).toCyclicArray()
 
     this.setModel(this.chassisModels.get())
 

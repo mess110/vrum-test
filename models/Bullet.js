@@ -6,6 +6,8 @@ class Bullet extends THREE.Object3D {
     Utils.addOutline(coin)
     this.add(coin)
     this.maxLifeTime = 5
+
+    this.shadowCastAndNotReceive()
   }
 
   from(tank) {

@@ -8,6 +8,16 @@ Config.instance.vax = {
   groundColor: '#55AA55'
 }
 
+PoolManager.on('spawn', Explosion, (item, options) => {
+  item.from(options.from)
+  item.explosion.enable()
+  Hodler.get('scene').add(item)
+})
+PoolManager.on('release', Explosion, (item) => {
+  item.explosion.disable()
+  Hodler.get('scene').remove(item)
+})
+
 PoolManager.on('spawn', Bullet, (item, options) => {
   item.from(options.from)
   Hodler.get('scene').add(item)
@@ -36,8 +46,13 @@ let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 
 let sceneAfterLoading = Config.instance.engine.prod ? menuScene : campaignScene
 
-let loadingScene = new LoadingScene(sceneAfterLoading, [
+let loadingScene = new VaxLoadingScene(sceneAfterLoading, [
   { type: 'image', path: 'assets/hand.png' },
+
+  { type: 'image', path: 'assets/spe_smokeparticle.png' },
+  { type: 'image', path: 'assets/spe_star.png' },
+  { type: 'json', path: 'assets/hit.json' },
+  { type: 'json', path: 'assets/sparks.json' },
 
   { type: 'model', path: 'assets/models/ammo.001.glb' },
   { type: 'model', path: 'assets/models/ammo.002.glb' },
@@ -53,6 +68,7 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/coin.001.glb' },
   { type: 'model', path: 'assets/models/flag.001.glb' },
   { type: 'model', path: 'assets/models/ground.001.glb' },
+  { type: 'model', path: 'assets/models/heart.001.glb' },
   { type: 'model', path: 'assets/models/rench.001.glb' },
   { type: 'model', path: 'assets/models/tower.001.glb' },
   { type: 'model', path: 'assets/models/island.002.glb' },
@@ -69,43 +85,33 @@ let loadingScene = new LoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/wheel.002.glb' },
   { type: 'model', path: 'assets/models/wheel.003.glb' },
 ])
-loadingScene.initCallback = () => {
-  addBaseLight(loadingScene)
-  loadingScene.cube = new THREE.Object3D()
-
-  let barrel = AssetManager.clone('barrel.001.glb')
-  loadingScene.barrel = barrel
-
-  loadingScene.cube.add(barrel)
-  loadingScene.cube.rotation.set(0, 0, Math.PI / 2)
-  loadingScene.add(loadingScene.cube)
-
-  let text = new BaseText({
-    text: 'loading', fillStyle: 'white',
-    canvasW: 512, canvasH: 512, align: 'center',
-    font: '84px luckiest-guy'})
-  text.position.set(0, 0, 6)
-  text.lookAt(Hodler.get('camera').position)
-  loadingScene.add(text)
-}
-loadingScene.tick = (tpf) => {
-  loadingScene.barrel.rotation.y -= tpf
-  loadingScene.barrel.rotation.x += tpf
-}
 let logosScene = new AddsScene(loadingScene, ["logo.png"])
 
 const addBaseLight = (scene) => {
-  let light = new THREE.PointLight()
-  light.position.set(0, 50, 0)
+  PoolManager.releaseAll()
+
+  let light = new THREE.PointLight(0xffffff, 0.25, 0, 2)
+  light.position.set(0, 20, 0)
   scene.add(light)
 
-  let ambient = new THREE.AmbientLight('white', 0.6)
+  let ambient = new THREE.AmbientLight('white', 0.9)
   scene.add(ambient)
+
+  if (Utils.isMobileOrTablet()) {
+    Utils.setShadowDetails('low')
+  } else {
+    Utils.setShadowDetails('high')
+  }
+  Utils.toggleShadows()
 }
 
 let sceneAfterInit = Config.instance.engine.prod ? logosScene : loadingScene
 
 Utils.setCursor('none')
+
+const CHASSISES = ['chassis.001.glb', 'chassis.002.glb', 'chassis.003.glb', 'chassis.004.glb', 'chassis.005.glb']
+const WHEELS = ['wheel.001.glb', 'wheel.002.glb', 'wheel.003.glb']
+const WEAPONS = ['weapon.001.glb', 'weapon.002.glb', 'weapon.003.glb']
 
 Engine.start(sceneAfterInit, [
   { type: 'font', path: 'assets/luckiest-guy' },

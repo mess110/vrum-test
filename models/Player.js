@@ -4,10 +4,10 @@ class Player extends Tank {
 
     this.speed = 10
     this.acceleration = 2
-    this.shootCooldown = 0.3
+    this.shootCooldown = 0.5
     this.timeSinceLastShot = 0
     this.size = 4
-
+    this.coinsPickedUp = 0
 
     let control = new PositionXZRotationYControls()
     control.speed = this.speed

@@ -21,6 +21,7 @@ cp ../../assets/models/coin.001.glb assets/models/
 cp ../../assets/models/flag.001.glb assets/models/
 cp ../../assets/models/ground.001.glb assets/models/
 cp ../../assets/models/grass.full.001.glb assets/models/
+cp ../../assets/models/heart.001.glb assets/models/
 cp ../../assets/models/island.001.glb assets/models/
 cp ../../assets/models/island.002.glb assets/models/
 cp ../../assets/models/island.002.walk.glb assets/models/

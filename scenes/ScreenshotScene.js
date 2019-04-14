@@ -38,6 +38,7 @@ class ScreenshotScene extends Scene {
     this.add(tank2)
 
     let tank3 = new Tank()
+    tank3.setModel('chassis.005.glb')
     tank3.changeWeapon('weapon.002.glb')
     tank3.position.set(3, 0, -2)
     tank3.rotation.set(0, 0.4, 0)

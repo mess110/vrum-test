@@ -26,9 +26,10 @@ class MenuScene extends Scene {
     tank.position.set(36.33804182448716, -13.380791386191827, -9.071187079287736)
     tank.rotation.set(-0.5880026035475676, -1, 0)
     tank.scale.setScalar(3)
-    tank.setModel(tank.chassisModels.items.shuffle().first())
-    tank.changeWheels(tank.wheelModels.items.shuffle().first())
-    tank.changeWeapon(tank.weaponModels.items.shuffle().first())
+    tank.setModel(CHASSISES.shuffle().first())
+    tank.changeWheels(WHEELS.shuffle().first())
+    tank.changeWeapon(WEAPONS.shuffle().first())
+    tank.shadowCastAndNotReceive()
     // tank.visible = false
     this.add(tank)
 
@@ -36,6 +37,7 @@ class MenuScene extends Scene {
 
     let coin = new Coin()
     coin.position.set(0.5, 0, 0)
+    coin.shadowNone()
     this.add(coin)
     this.coin = coin
 
@@ -44,6 +46,7 @@ class MenuScene extends Scene {
     ground.rotation.set(-0.5880026035475676, -1, 0)
     ground.scale.setScalar(3)
     ground.translateZ(-18.5 * 2 - 7)
+    ground.shadowReceive()
     this.add(ground)
 
     let duration = 2000
@@ -132,11 +135,12 @@ class MenuScene extends Scene {
 
     let gameName = new BaseText({
       text: 'Vax Albina', fillStyle: 'white', align: 'center',
+      strokeStyle: 'black', strokeLineWidth: 1,
       canvasW: 512, canvasH: 512,
       font: '72px luckiest-guy'})
-    gameName.scale.setScalar(2.5)
+    gameName.scale.setScalar(1.5)
     gameName.lookAt(camera.position)
-    gameName.position.set(3.8, -1, 11)
+    gameName.position.set(0, 1, 11)
     this.add(gameName)
   }
 

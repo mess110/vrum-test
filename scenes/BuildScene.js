@@ -1,6 +1,7 @@
 class BuildScene extends Scene {
   init(options) {
     addBaseLight(this)
+    Utils.setCursor('assets/hand.png')
 
     let camera = this.getCamera()
     camera.position.set(0, 10, 15)
@@ -8,6 +9,7 @@ class BuildScene extends Scene {
 
     let barrel = AssetManager.clone('barrel.001.glb')
     barrel.position.set(0, -4.5, 0)
+    barrel.shadowReceive()
     this.add(barrel)
 
     for (var i = 0; i < 10; i++) {
@@ -17,14 +19,18 @@ class BuildScene extends Scene {
       this.add(wall)
     }
 
-    let ground = Utils.plane({width: 60, height: 20, color: Config.instance.vax.groundColor })
+    let ground = Utils.plane({width: 60, height: 20,
+      materialType: THREE.MeshLambertMaterial,
+      color: Config.instance.vax.groundColor })
     ground.position.set(0, -4.5, 0)
     ground.rotation.set(Math.PI / 2, 0, 0)
+    ground.shadowReceive()
     this.add(ground)
 
     this.buttons = []
 
     let tank = new Tank()
+    tank.shadowCastAndNotReceive()
     tank.position.set(0, 0, 1)
     this.add(tank)
     this.tank = tank
@@ -46,7 +52,9 @@ class BuildScene extends Scene {
     chassisButton.position.set(-7, 4.75, -3)
     chassisButton.lookAt(Hodler.get('camera').position)
     chassisButton.onClick = () => {
-      Hodler.get('scene').tank.nextChassis()
+      let tank = Hodler.get('scene').tank
+      tank.nextChassis()
+      tank.shadowCastAndNotReceive()
     }
     this.add(chassisButton)
     this.buttons.push(chassisButton)
@@ -55,7 +63,9 @@ class BuildScene extends Scene {
     weaponButton.position.set(0, 5, -3)
     weaponButton.lookAt(Hodler.get('camera').position)
     weaponButton.onClick = () => {
-      Hodler.get('scene').tank.nextWeapon()
+      let tank = Hodler.get('scene').tank
+      tank.nextWeapon()
+      tank.shadowCastAndNotReceive()
     }
     this.add(weaponButton)
     this.buttons.push(weaponButton)
@@ -64,13 +74,15 @@ class BuildScene extends Scene {
     wheelButton.position.set(7, 4.75, -3)
     wheelButton.lookAt(Hodler.get('camera').position)
     wheelButton.onClick = () => {
-      Hodler.get('scene').tank.nextWheels()
+      let tank = Hodler.get('scene').tank
+      tank.nextWheels()
+      tank.shadowCastAndNotReceive()
     }
     this.add(wheelButton)
     this.buttons.push(wheelButton)
 
     let saveButton = new Button3D('start')
-    saveButton.position.set(0, -2, 4)
+    saveButton.position.set(5, -2, 4)
     saveButton.lookAt(Hodler.get('camera').position)
     saveButton.onClick = () => {
       saveButton.isEnabled = false
@@ -83,13 +95,23 @@ class BuildScene extends Scene {
     this.add(saveButton)
     this.buttons.push(saveButton)
 
+    let backButton = new Button3D('back')
+    backButton.position.set(-5, -2, 4)
+    backButton.lookAt(Hodler.get('camera').position)
+    backButton.onClick = () => {
+      backButton.isEnabled = false
+      Engine.switch(menuScene)
+    }
+    this.add(backButton)
+    this.buttons.push(backButton)
+
     this.resetMenu()
     this.lastGamepadEventTime = 0
   }
 
   resetMenu() {
-    this.leftArray = [0, 1, 2].toCyclicArray()
-    this.leftArray.next()
+    this.topMenu = [0, 1, 2].toCyclicArray()
+    this.bottomMenu = [3, 4].toCyclicArray()
   }
 
   tick(tpf) {
@@ -119,30 +141,44 @@ class BuildScene extends Scene {
     if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.code)) {
       if (event.type !== 'keydown') { return }
 
-      this.buttons.forEach((button) => {
-        button.isHovered = false
-      })
-
+      if (event.code == 'ArrowUp') {
+        this.resetMenu()
+        this.buttons[0].isHovered = true
+        this.buttons[1].isHovered = false
+        this.buttons[2].isHovered = false
+        this.buttons[3].isHovered = false
+        this.buttons[4].isHovered = false
+      }
       if (event.code == 'ArrowDown') {
         this.resetMenu()
+        this.buttons[0].isHovered = false
+        this.buttons[1].isHovered = false
+        this.buttons[2].isHovered = false
         this.buttons[3].isHovered = true
+        this.buttons[4].isHovered = false
       }
 
       let topIsHovered = this.buttons[0].isHovered || this.buttons[1].isHovered || this.buttons[2].isHovered
-      if (event.code == 'ArrowUp') {
-        this.resetMenu()
-        if (!topIsHovered) {
-          this.buttons[1].isHovered = true
-        }
-      }
+      let bottomIsHovered = this.buttons[3].isHovered || this.buttons[4].isHovered
+
       if (event.code == 'ArrowLeft') {
-        if (!topIsHovered) {
-          this.buttons[this.leftArray.prev()].isHovered = true
+        if (topIsHovered) {
+          this.buttons[this.topMenu.get()].isHovered = false
+          this.buttons[this.topMenu.prev()].isHovered = true
+        }
+        if (bottomIsHovered) {
+          this.buttons[this.bottomMenu.get()].isHovered = false
+          this.buttons[this.bottomMenu.prev()].isHovered = true
         }
       }
       if (event.code == 'ArrowRight') {
-        if (!topIsHovered) {
-          this.buttons[this.leftArray.next()].isHovered = true
+        if (topIsHovered) {
+          this.buttons[this.topMenu.get()].isHovered = false
+          this.buttons[this.topMenu.next()].isHovered = true
+        }
+        if (bottomIsHovered) {
+          this.buttons[this.bottomMenu.get()].isHovered = false
+          this.buttons[this.bottomMenu.next()].isHovered = true
         }
       }
     }

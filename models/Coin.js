@@ -6,6 +6,7 @@ class Coin extends THREE.Object3D {
     Utils.addOutline(coin)
     this.add(coin)
 
+    this.shadowCastAndNotReceive()
     this.reset()
   }
 

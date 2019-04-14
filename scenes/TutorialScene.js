@@ -23,11 +23,13 @@ class TutorialScene extends GameScene {
 
     PoolManager.itemsInUse(Coin).forEach((coin) => {
       coin.tick(tpf)
-      this.hitVector.setFromMatrixPosition(this.tank.boundingCube.matrixWorld);
-
-      let distance = Measure.distanceBetween(coin, this.hitVector)
-      if (distance < 3) {
-        coin.pickup()
+      if (!coin.pickedUp) {
+        this.hitVector.setFromMatrixPosition(this.tank.boundingCube.matrixWorld);
+        let distance = Measure.distanceBetween(coin, this.hitVector)
+        if (distance < 3) {
+          coin.pickup()
+          this.score.bump()
+        }
       }
     })
 
@@ -65,7 +67,7 @@ class TutorialScene extends GameScene {
     }
 
     if (this.tutorialStage == 1) {
-      if (PoolManager.itemsInUse(Coin).size() == 0) {
+      if (this.score.score >= 7) {
         this.tutorialStage += 1
 
         let infoText = 'ARROW KEYS TO AIM'
@@ -76,6 +78,7 @@ class TutorialScene extends GameScene {
 
         let practiceDummy = AssetManager.clone('practice.dummy.001.glb')
         practiceDummy.position.set(0, 0, -16)
+        practiceDummy.shadowCastAndNotReceive()
         this.add(practiceDummy)
         this.practiceDummy = practiceDummy
       }

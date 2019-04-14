@@ -11,6 +11,7 @@ class GameScene extends Scene {
     let island = AssetManager.clone('island.002.glb')
     // Utils.addOutline(island)
     this.add(island)
+    island.shadowReceive()
     this.island = island
 
     let islandWalk = AssetManager.clone('island.002.walk.glb')
@@ -28,12 +29,22 @@ class GameScene extends Scene {
 
     this.infoText = new BaseText({
       text: '', fillStyle: 'white', align: 'center',
+      material: THREE.MeshLambertMaterial,
+      strokeStyle: 'black', strokeLineWidth: 1,
       canvasW: 512, canvasH: 512,
-      font: '72px luckiest-guy'})
+      font: '72px luckiest-guy'
+    })
     this.infoText.scale.setScalar(8)
     this.infoText.rotation.set(-Math.PI / 2, 0, 0)
     this.infoText.position.set(0, 0.1, 18)
+    this.infoText.shadowReceive()
+    // this.infoText.material.depthTest = false
     this.add(this.infoText)
+
+    let score = new Score()
+    this.score = score
+    camera.add(score)
+    this.add(camera)
 
     let vector = new THREE.Vector3();
     this.hitVector = vector
@@ -51,6 +62,7 @@ class GameScene extends Scene {
 
   uninit() {
     this.vj.uninit()
+    Hodler.get('camera').remove(this.score)
   }
 
   doMobileEvent(target) {
@@ -108,6 +120,12 @@ class GameScene extends Scene {
     tank.changeWheels(options.model.wheels)
     tank.changeWeapon(options.model.weapon)
     tank.rayScanner.collidables = this.collidables
+    tank.shadowCastAndNotReceive()
+    // tank.outline.shadowNone()
+
+    tank.health = new Health()
+    tank.add(tank.health)
+
     this.characters.forEach((character) => {
       tank.rayScanner.addCollidable(character)
       character.rayScanner.addCollidable(tank)
@@ -118,8 +136,18 @@ class GameScene extends Scene {
     return tank
   }
 
+  removePlayer(tank) {
+    this.characters.forEach((character) => {
+      character.rayScanner.removeCollidable(tank)
+    })
+    this.characters.remove(tank)
+    this.remove(tank)
+  }
+
   tick(tpf) {
     Measure.clearLines()
+
+    this.score.tick(tpf)
 
     PoolManager.itemsInUse(Bullet).forEach((bullet) => {
       bullet.tick(tpf)
