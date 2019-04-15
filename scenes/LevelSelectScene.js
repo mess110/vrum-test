@@ -1,4 +1,4 @@
-class MenuScene extends Scene {
+class LevelSelectScene extends Scene {
   init(options) {
     addBaseLight(this)
     Utils.addCEButton({ type: 'fullscreen', position: 'bottom-left' })
@@ -15,24 +15,7 @@ class MenuScene extends Scene {
 
     this.buttons = []
 
-    let tank = new Tank()
-    tank.position.set(30.36359783235107, -11.252880241081213, -5.879320361621825)
-    tank.rotation.set(-0.5880026035475676, -1, 0)
-    tank.scale.setScalar(3)
-    tank.setModel(CHASSISES.shuffle().first())
-    tank.changeWheels(WHEELS.shuffle().first())
-    tank.changeWeapon(WEAPONS.shuffle().first())
-    tank.shadowCastAndNotReceive()
-    // tank.visible = false
-    this.add(tank)
-
     this.initClouds()
-
-    // let coin = new Coin()
-    // coin.position.set(0, -16, -16)
-    // coin.shadowNone()
-    // this.add(coin)
-    // this.coin = coin
 
     let island = AssetManager.clone('island.002.glb')
     island.position.set(0, 0, 11)
@@ -43,36 +26,9 @@ class MenuScene extends Scene {
     island.shadowReceive()
     this.island = island
 
-    let duration = 2000
-    let pos = {
-      x: 10.168294196961579,
-      y: -4.0599411590172,
-      z: 4.9100882614742005
-    }
-    new BaseModifier(tank.position, pos, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheels.wheelFR.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheels.wheelFL.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheels.wheelBL.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-    new BaseModifier(tank.wheels.wheelBR.rotation, { x: '+9' }, duration, TWEEN.Easing.Bounce.Out).start()
-
-    let scanEasing = TWEEN.Easing.Elastic.Out
-    let scanDuration = 4000
-    var up = new BaseModifier(tank.weapon.rotation, { y: '+0.5' }, scanDuration, scanEasing)
-    var down = new BaseModifier(tank.weapon.rotation, { y: '-0.5' }, scanDuration, scanEasing)
-    down.delay(4000)
-    up.delay(4000)
-    up.chain(down)
-    down.chain(up)
-    this.setTimeout(() => {
-      let left = new BaseModifier(tank.weapon.rotation, { y: '-0.25' }, scanDuration / 2, scanEasing)
-      left.chain(up)
-      left.start()
-    }, duration + 100)
-
     this.mouseDown = false
     this.stopAutoRotate = false
     this.heldButton = undefined
-    this.clickedWithGamepad = false
 
     let buttonModels = new THREE.Object3D()
 
@@ -80,7 +36,7 @@ class MenuScene extends Scene {
     tutorialButton.position.set(0, 3, 0)
     tutorialButton.onClick = () => {
       tutorialButton.isEnabled = false
-      Engine.switch(tutorialScene, undefined, { clickedWithGamepad: this.clickedWithGamepad })
+      Engine.switch(tutorialScene)
     }
     buttonModels.add(tutorialButton)
     this.buttons.push(tutorialButton)
@@ -118,6 +74,7 @@ class MenuScene extends Scene {
     p.position.set(0, -2.75, -0.5)
     buttonModels.add(p)
     buttonModels.position.set(-6.95, 8.5, 7.9)
+    // buttonModels.position.set(0, 8.5, 7.9)
     buttonModels.lookAt(camera.position)
     this.buttonModels = buttonModels
 
@@ -126,16 +83,6 @@ class MenuScene extends Scene {
     this.leftArray.prev()
 
     this.lastGamepadEventTime = 0
-
-    let gameName = new BaseText({
-      text: 'Vax Albina', fillStyle: 'white', align: 'center',
-      strokeStyle: 'black', strokeLineWidth: 2,
-      canvasW: 512, canvasH: 512,
-      w: 15, h: 15,
-      font: '86px luckiest-guy'})
-    gameName.position.set(0, 10, 0)
-    gameName.lookAt(camera.position)
-    this.add(gameName)
   }
 
   uninit() {
@@ -173,7 +120,6 @@ class MenuScene extends Scene {
     this.buttons.forEach((button) => {
       button.tick(tpf)
     })
-    // this.coin.rotation.y += tpf
     this.island.rotation.y += tpf / 100
   }
 
@@ -246,7 +192,6 @@ class MenuScene extends Scene {
       this.lastGamepadEventTime = this.uptime
     }
     if (gamepad.buttons[0].pressed) {
-      this.clickedWithGamepad = true
       this.doKeyboardEvent({type: 'keydown', code: 'Space'})
       this.setTimeout(() => {
         this.doKeyboardEvent({type: 'keyup', code: 'Space'})

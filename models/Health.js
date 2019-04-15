@@ -22,12 +22,35 @@ class Health extends THREE.Object3D {
     heart3.position.set(2, 0, 0)
     this.add(heart3)
 
+    let text = new BaseText({
+      text: '', fillStyle: 'white', align: 'center',
+      material: THREE.MeshLambertMaterial,
+      strokeStyle: 'black', strokeLineWidth: 5,
+      canvasW: 256, canvasH: 256,
+      font: '72px luckiest-guy'
+    })
+    text.rotation.set(-0.9, 0, 0)
+    text.position.set(0, -1.5, 4)
+    text.material.depthTest = false
+    this.add(text)
+    this.text = text
+
     this.position.set(0, 4.5, -2)
 
     this.health = 3
+    this.immuneDuration = 1
+    this.timeSinceLastHit = 2
+  }
+
+  setText(s) {
+    this.text.setText(s)
   }
 
   dmg() {
+    if (this.isImune()) {
+      return
+    }
+    this.timeSinceLastHit = 0
     this.health -= 1
 
     let fadeSpeed = 500
@@ -46,5 +69,13 @@ class Health extends THREE.Object3D {
 
   isDead() {
     return this.health <= 0
+  }
+
+  isImune() {
+    return this.timeSinceLastHit <= this.immuneDuration
+  }
+
+  tick(tpf) {
+    this.timeSinceLastHit += tpf
   }
 }

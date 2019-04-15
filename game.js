@@ -5,7 +5,9 @@ Config.instance.window.showStatsOnStart = !Config.instance.engine.prod
 
 Config.instance.vax = {
   skyColor: '#29bbf4',
-  groundColor: '#55AA55'
+  groundColor: '#55AA55',
+  stoneColor: '#6C8D9A',
+  lighColor: 0xffffff,
 }
 
 PoolManager.on('spawn', Explosion, (item, options) => {
@@ -37,6 +39,7 @@ PoolManager.on('release', Coin, (item, options) => {
 
 let menuScene = new MenuScene()
 let campaignScene = new CampaignScene()
+let levelSelectScene = new LevelSelectScene()
 let lobbyBrowserScene = new LobbyBrowserScene()
 let buildScene = new BuildScene()
 let screenshotScene = new ScreenshotScene()
@@ -52,7 +55,6 @@ let loadingScene = new VaxLoadingScene(sceneAfterLoading, [
   { type: 'image', path: 'assets/spe_smokeparticle.png' },
   { type: 'image', path: 'assets/spe_star.png' },
   { type: 'json', path: 'assets/hit.json' },
-  { type: 'json', path: 'assets/sparks.json' },
 
   { type: 'model', path: 'assets/models/ammo.001.glb' },
   { type: 'model', path: 'assets/models/ammo.002.glb' },
@@ -74,6 +76,7 @@ let loadingScene = new VaxLoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/island.002.glb' },
   { type: 'model', path: 'assets/models/island.002.walk.glb' },
   { type: 'model', path: 'assets/models/tree.001.glb' },
+  { type: 'model', path: 'assets/models/plaque.001.glb' },
   { type: 'model', path: 'assets/models/practice.dummy.001.glb' },
   { type: 'model', path: 'assets/models/wall.001.glb' },
   { type: 'model', path: 'assets/models/wall.002.glb' },
@@ -81,6 +84,7 @@ let loadingScene = new VaxLoadingScene(sceneAfterLoading, [
   { type: 'model', path: 'assets/models/weapon.001.glb' },
   { type: 'model', path: 'assets/models/weapon.002.glb' },
   { type: 'model', path: 'assets/models/weapon.003.glb' },
+  { type: 'model', path: 'assets/models/weapon.004.glb' },
   { type: 'model', path: 'assets/models/wheel.001.glb' },
   { type: 'model', path: 'assets/models/wheel.002.glb' },
   { type: 'model', path: 'assets/models/wheel.003.glb' },
@@ -90,11 +94,11 @@ let logosScene = new AddsScene(loadingScene, ["logo.png"])
 const addBaseLight = (scene) => {
   PoolManager.releaseAll()
 
-  let light = new THREE.PointLight(0xffffff, 0.25, 0, 2)
+  let light = new THREE.PointLight(Config.instance.vax.lighColor, 0.25, 0, 2)
   light.position.set(0, 20, 0)
   scene.add(light)
 
-  let ambient = new THREE.AmbientLight('white', 0.9)
+  let ambient = new THREE.AmbientLight(Config.instance.vax.lighColor, 0.9)
   scene.add(ambient)
 
   if (Utils.isMobileOrTablet()) {

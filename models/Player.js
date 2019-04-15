@@ -4,10 +4,11 @@ class Player extends Tank {
 
     this.speed = 10
     this.acceleration = 2
-    this.shootCooldown = 0.5
+    this.shootCooldown = 0.2
     this.timeSinceLastShot = 0
     this.size = 4
     this.coinsPickedUp = 0
+    this.shooting = false
 
     let control = new PositionXZRotationYControls()
     control.speed = this.speed
@@ -43,7 +44,31 @@ class Player extends Tank {
     if (this.timeSinceLastShot < this.shootCooldown) {
       return
     }
+
+    let duration = this.shootCooldown * 1000 / 2
+    let tween = new TWEEN.Tween(this.weapon.position)
+    const amount = 0.5
+    this.weapon.translateZ(amount * -1)
+    let poscopy = this.weapon.position.clone()
+    this.weapon.translateZ(amount)
+
+    tween.easing(TWEEN.Easing.Quartic.Out)
+    tween.to(poscopy, duration)
+    tween.onUpdate((value) => {
+      this.weapon.translateZ(-0.05)
+    }).start()
+
+    setTimeout(() => {
+      let tween2 = new TWEEN.Tween(this.weapon.position)
+      tween2.to(new THREE.Vector3(0, 2.65, 0), duration)
+      tween2.easing(TWEEN.Easing.Cubic.Out)
+      tween2.onUpdate((value) => {
+        this.weapon.translateZ(0.05)
+      }).start()
+    }, duration)
+
     this.timeSinceLastShot = 0
+
     PoolManager.spawn(Bullet, { from: this })
   }
 
@@ -74,11 +99,24 @@ class Player extends Tank {
 
     this.control.tick(tpf)
     this.controlWeapon.tick(tpf)
+    if (this.shooting) {
+      this.shoot()
+    }
+    this.health.tick(tpf)
+
+    if (this.health.isImune()) {
+      this.chassis.setOpacity(0.5)
+      this.wheels.setOpacity(0.5)
+      this.weapon.setOpacity(0.5)
+    } else {
+      this.chassis.setOpacity(1)
+      this.wheels.setOpacity(1)
+      this.weapon.setOpacity(1)
+    }
 
     if (this.control.isMoving()) {
       this.wheels.tick(tpf * 2)
     }
-
     this.chassis.rotation.y = this.control.rotationY
     this.wheels.rotation.y = this.control.rotationY
     this.weapon.rotation.y = this.controlWeapon.rotationY
@@ -99,25 +137,40 @@ class Player extends Tank {
     this.control.doKeyboardEvent(event)
     this.controlWeapon.doKeyboardEvent(event)
 
-    if (event.type == 'keydown' && event.code == 'Space') {
-      this.shoot()
+    if (event.code == 'Space') {
+      this.shooting = event.type == 'keydown'
     }
   }
 
-  doGamepadEvent(event) {
-    this.control.doGamepadEvent(event)
-    this.controlWeapon.doGamepadEvent(event)
+  doGamepadEvent(event, gamepadIndex) {
+    if (isBlank(gamepadIndex)) { gamepadIndex = 0 }
+    this.control.doGamepadEvent(event, gamepadIndex)
+    this.controlWeapon.doGamepadEvent(event, gamepadIndex)
 
-    let gamepad = event[0]
+    let gamepad = event[gamepadIndex]
     if (isBlank(gamepad)) { return }
-    if (gamepad.buttons[0].pressed) {
-      this.shoot()
-    }
-    if (this.controlWeapon.getGamepadDeltaX(gamepad) > 0.85 ||
-        this.controlWeapon.getGamepadDeltaX(gamepad) < -0.85 ||
-        this.controlWeapon.getGamepadDeltaY(gamepad) > 0.85 ||
-        this.controlWeapon.getGamepadDeltaY(gamepad) < -0.85) {
-      this.shoot()
+
+    let xPressed = gamepad.buttons[0].pressed
+    let gamepadExtremes = this.controlWeapon.getGamepadDeltaX(gamepad) > 0.85 ||
+                          this.controlWeapon.getGamepadDeltaX(gamepad) < -0.85 ||
+                          this.controlWeapon.getGamepadDeltaY(gamepad) > 0.85 ||
+                          this.controlWeapon.getGamepadDeltaY(gamepad) < -0.85
+
+    this.shooting = xPressed || gamepadExtremes
+  }
+
+  doMobileEvent(vj) {
+    let joystickLeft = vj.joystickLeft
+    let joystickRight = vj.joystickRight
+
+    this.control.doMobileEvent(joystickLeft)
+    this.controlWeapon.doMobileEvent(joystickRight)
+
+    let joystick = joystickRight
+    if (!isBlank(joystick)) {
+      let deltaX = joystick.deltaX()
+      let deltaY = joystick.deltaY()
+      this.shooting = deltaX > 40 || deltaX < -40 || deltaY > 40 || deltaY < -40
     }
   }
 }

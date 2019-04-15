@@ -3,6 +3,8 @@ class GameScene extends Scene {
     addBaseLight(this)
     Utils.setCursor('none')
 
+    this.inputMapper = new InputMapper()
+
     let camera = this.getCamera()
     camera.position.set(0, 35, 25)
     camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -65,24 +67,6 @@ class GameScene extends Scene {
     Hodler.get('camera').remove(this.score)
   }
 
-  doMobileEvent(target) {
-    if (!VirtualController.isAvailable()) { return }
-    let joystickLeft = this.vj.joystickLeft
-    let joystickRight = this.vj.joystickRight
-    target.control.doMobileEvent(joystickLeft)
-    target.controlWeapon.doMobileEvent(joystickRight)
-
-    let joystick = joystickRight
-    if (!isBlank(joystick)) {
-      let deltaX = joystick.deltaX()
-      let deltaY = joystick.deltaY()
-
-      if (deltaX > 40 || deltaX < -40 || deltaY > 40 || deltaY < -40) {
-        target.shoot()
-      }
-    }
-  }
-
   setInfoMsg(key) {
     let easing = TWEEN.Easing.Cubic.InOut
     if (!isBlank(this.fadeIn)) {
@@ -121,7 +105,6 @@ class GameScene extends Scene {
     tank.changeWeapon(options.model.weapon)
     tank.rayScanner.collidables = this.collidables
     tank.shadowCastAndNotReceive()
-    // tank.outline.shadowNone()
 
     tank.health = new Health()
     tank.add(tank.health)
@@ -144,13 +127,102 @@ class GameScene extends Scene {
     this.remove(tank)
   }
 
+  getLerpTarget() {
+    let x, y, z
+    let items = this.inputMapper.models()
+      .filter((e) => { return !e.health.isDead() })
+
+    if (items.any()) {
+      x = items.map((e) => { return e.position.x }).reduce((a, b) => { return a + b }) / items.size()
+      y = items.map((e) => { return e.position.y }).reduce((a, b) => { return a + b }) / items.size()
+      z = items.map((e) => { return e.position.z }).reduce((a, b) => { return a + b }) / items.size()
+    } else {
+      x = 0
+      y = 0
+      z = 0
+    }
+    return new THREE.Vector3(x, y, z)
+  }
+
   tick(tpf) {
     Measure.clearLines()
 
+    Utils.lerpCamera(this.getLerpTarget(), new THREE.Vector3(0, 35, 25))
     this.score.tick(tpf)
+    this.doMobileEvent(this.inputMapper.mobile)
 
     PoolManager.itemsInUse(Bullet).forEach((bullet) => {
       bullet.tick(tpf)
+    })
+
+    PoolManager.itemsInUse(Coin).forEach((coin) => {
+      coin.tick(tpf)
+    })
+  }
+
+  findOrCreate() {
+    let found
+    this.characters.forEach((character) => {
+      if (isBlank(character.botControls) && !this.inputMapper.uuids().includes(character.uuid)) {
+        if (Config.instance.engine.debug) {
+          console.info(`found ${character.uuid} using for input`)
+        }
+        found = character
+      }
+    })
+    if (isBlank(found)) {
+      if (Config.instance.engine.debug) {
+        console.info('creating new player')
+      }
+      return this.addPlayer()
+    } else {
+      return found
+    }
+  }
+
+  // use the mouse to detect player touching the screen on mobile
+  // doMobileEvent happens on every tick
+  doMouseEvent(event, raycaster) {
+    if (!VirtualController.isAvailable()) { return }
+    if (!isBlank(this.inputMapper.mobile)) { return }
+    let target = this.findOrCreate()
+    target.health.setText('M')
+    this.inputMapper.mobile = target
+  }
+
+  doMobileEvent(target) {
+    if (isBlank(target)) { return }
+    if (!VirtualController.isAvailable()) { return }
+    target.doMobileEvent(this.vj)
+  }
+
+
+  doKeyboardEvent(event) {
+    let target = this.inputMapper.keyboard
+    if (isBlank(target)) {
+      this.inputMapper.keyboard = this.findOrCreate()
+      target = this.inputMapper.keyboard
+      target.health.setText('K')
+    }
+    target.doKeyboardEvent(event)
+  }
+
+  doGamepadEvent(event) {
+    if (event.type !== 'gamepadtick-vrum') { return }
+
+    [
+      this.inputMapper.gamepad1, this.inputMapper.gamepad2,
+      this.inputMapper.gamepad3, this.inputMapper.gamepad4
+    ].forEach((target, index) => {
+      if (isBlank(target)) {
+        if (!isBlank(event[index])) {
+          let targetModel = this.findOrCreate()
+          this.inputMapper[`gamepad${index + 1}`] = targetModel
+          targetModel.health.setText(`G${index + 1}`)
+        }
+      } else {
+        target.doGamepadEvent(event, index)
+      }
     })
   }
 }
