@@ -3,11 +3,6 @@ class CampaignScene extends GameScene {
     super.init(options)
 
     this.addPlayer(options)
-    // this.inputMapper.add(player1)
-    // let player2 = this.addPlayer(options)
-    // this.inputMapper.add(player2)
-    // let player3 = this.addPlayer(options)
-    // this.inputMapper.add(player3)
 
     this.addBot({position: { x: 15, z: 15 }})
     // this.addBot({position: { x: 15, z: 15 }})
@@ -32,10 +27,6 @@ class CampaignScene extends GameScene {
     // this.addBot({position: { x: 25, z: -15 }})
     // this.addBot({position: { x: 25, z: -15 }})
     this.addBot({position: { x: 25, z: -15 }, type: BotMeleeControls })
-
-    // let barrel = AssetManager.clone('barrel.001.glb')
-    // barrel.position.set(15, 0, 0)
-    // this.add(barrel)
 
     this.phase = 0
     this.ended = 0
