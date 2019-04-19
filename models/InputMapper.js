@@ -8,6 +8,8 @@ class InputMapper {
     this.gamepad3 = undefined
     this.gamepad4 = undefined
     this.mobile = undefined
+    this.sockets = {}
+    this.peer2key = {}
   }
 
   uuids() {
@@ -22,6 +24,12 @@ class InputMapper {
     if (!isBlank(this.gamepad3)) { result.push(this.gamepad3 ) }
     if (!isBlank(this.gamepad4)) { result.push(this.gamepad4 ) }
     if (!isBlank(this.mobile)) { result.push(this.mobile) }
+
+    Hodler.get('scene').characters.forEach((char) => {
+      if (!char.isBot) {
+        result.push(char)
+      }
+    })
     return result
   }
 

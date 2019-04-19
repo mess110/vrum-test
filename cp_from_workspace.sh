@@ -18,6 +18,10 @@ cp ../../assets/models/ammo.002.glb assets/models/
 cp ../../assets/models/barrel.001.glb assets/models/
 cp ../../assets/models/button.bg.001.glb assets/models/
 cp ../../assets/models/button.fg.001.glb assets/models/
+cp ../../assets/models/button.bg.002.glb assets/models/
+cp ../../assets/models/button.fg.002.glb assets/models/
+cp ../../assets/models/button.bg.003.glb assets/models/
+cp ../../assets/models/button.fg.003.glb assets/models/
 cp ../../assets/models/chassis.001.glb assets/models/
 cp ../../assets/models/chassis.002.glb assets/models/
 cp ../../assets/models/chassis.003.glb assets/models/

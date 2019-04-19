@@ -1,5 +1,7 @@
 class GameScene extends Scene {
   init(options) {
+    this.savedOptions = options
+
     addBaseLight(this)
     Utils.setCursor('none')
 
@@ -21,13 +23,15 @@ class GameScene extends Scene {
     this.islandWalk = islandWalk
     this.add(islandWalk)
 
-    let sky = Utils.plane({size: 1000, color: '#29bbf4' })
+    let sky = Utils.plane({size: 1000, color: Config.instance.vax.skyColor })
     sky.position.set(0, 0, -100)
     sky.lookAt(camera.position)
     this.add(sky)
 
+    this.respawner = new Respawner()
     this.characters = []
     this.collidables = [islandWalk]
+    this.vrumKey = Utils.guid()
 
     this.infoText = new BaseText({
       text: '', fillStyle: 'white', align: 'center',
@@ -97,17 +101,15 @@ class GameScene extends Scene {
     if (isBlank(options.position.x)) { options.position.x = 0 }
     if (isBlank(options.position.y)) { options.position.y = 0 }
     if (isBlank(options.position.z)) { options.position.z = 0 }
+    if (isBlank(options.vrumKey)) { options.vrumKey = Utils.guid() }
 
     let tank = new Player()
+    tank.vrumKey = options.vrumKey
     tank.position.set(options.position.x, options.position.y, options.position.z)
-    tank.setModel(options.model.chassis)
-    tank.changeWheels(options.model.wheels)
-    tank.changeWeapon(options.model.weapon)
+    tank.fromJsonModel(options.model)
     tank.rayScanner.collidables = this.collidables
     tank.shadowCastAndNotReceive()
-
-    tank.health = new Health()
-    tank.add(tank.health)
+    tank.health.shadowNone()
 
     this.characters.forEach((character) => {
       tank.rayScanner.addCollidable(character)
@@ -124,12 +126,16 @@ class GameScene extends Scene {
       character.rayScanner.removeCollidable(tank)
     })
     this.characters.remove(tank)
+    if (!tank.isBot) {
+      this.respawner.add(tank)
+    }
     this.remove(tank)
   }
 
   getLerpTarget() {
     let x, y, z
-    let items = this.inputMapper.models()
+    let items = this.characters
+      .filter((e) => { return !e.isBot })
       .filter((e) => { return !e.health.isDead() })
 
     if (items.any()) {
@@ -160,21 +166,24 @@ class GameScene extends Scene {
     })
   }
 
-  findOrCreate() {
+  findOrCreate(vrumKey) {
+    let vrumOwner
+    if (isBlank(vrumKey)) {
+      vrumKey = this.vrumKey
+    }
+    vrumOwner = vrumKey
     let found
+
     this.characters.forEach((character) => {
-      if (isBlank(character.botControls) && !this.inputMapper.uuids().includes(character.uuid)) {
-        if (Config.instance.engine.debug) {
-          console.info(`found ${character.uuid} using for input`)
-        }
+      if (vrumKey == character.vrumKey) {
         found = character
       }
     })
     if (isBlank(found)) {
-      if (Config.instance.engine.debug) {
-        console.info('creating new player')
-      }
-      return this.addPlayer()
+      let char = this.addPlayer({ model: this.savedOptions.model, vrumKey: vrumKey })
+      char.vrumNetNeedsInit = true
+      char.vrumOwner = vrumOwner
+      return char
     } else {
       return found
     }
@@ -186,7 +195,7 @@ class GameScene extends Scene {
     if (!VirtualController.isAvailable()) { return }
     if (!isBlank(this.inputMapper.mobile)) { return }
     let target = this.findOrCreate()
-    target.health.setText('M')
+    target.health.setText(`${Config.instance.vax.MOBILE}: ${target.vrumKey}`)
     this.inputMapper.mobile = target
   }
 
@@ -202,7 +211,7 @@ class GameScene extends Scene {
     if (isBlank(target)) {
       this.inputMapper.keyboard = this.findOrCreate()
       target = this.inputMapper.keyboard
-      target.health.setText('K')
+      target.health.setText(`${Config.instance.vax.KEYBOARD}: ${target.vrumKey}`)
     }
     target.doKeyboardEvent(event)
   }
@@ -216,13 +225,63 @@ class GameScene extends Scene {
     ].forEach((target, index) => {
       if (isBlank(target)) {
         if (!isBlank(event[index])) {
-          let targetModel = this.findOrCreate()
-          this.inputMapper[`gamepad${index + 1}`] = targetModel
-          targetModel.health.setText(`G${index + 1}`)
+          let target = this.findOrCreate()
+          this.inputMapper[`gamepad${index + 1}`] = target
+          let which = Config.instance.vax[`GAMEPAD${index + 1}`]
+          target.health.setText(`${which}: ${target.vrumKey}`)
         }
       } else {
         target.doGamepadEvent(event, index)
       }
     })
+  }
+
+  doNetworkTick(data, cmKey) {
+    data.bullets.forEach((bullet) => {
+      let bulletOwner = this.characters.filter((e) => { return bullet.vrumKey == e.vrumKey }).first()
+      if (bulletOwner.isNetwork) {
+        PoolManager.spawn(Bullet, bullet)
+      }
+    })
+    data.characters.forEach((char) => {
+      let key = char.vrumKey
+      let target = this.findOrCreate(key)
+      if (target.vrumNetNeedsInit) {
+        delete target.vrumNetNeedsInit
+        target.fromJsonModel(char.model)
+        target.shootCooldown = char.shootCooldown
+        target.speed = char.speed
+        target.acceleration = char.acceleration
+        this.inputMapper.peer2key[cmKey] = key
+        if (char.isBot) {
+          target.isBot = true
+          target.health.setText(`${Config.instance.vax.BOT_NETWORK}: ${key}`)
+        } else {
+          target.health.setText(`${Config.instance.vax.NETWORK}: ${key}`)
+        }
+      }
+      target.isNetwork = true
+      target.control.keys = char.control
+      target.controlWeapon.keys = char.controlWeapon
+      target.shooting = char.shooting
+      if (Measure.distanceBetween(target, char.position) > 2) {
+        target.position.set(char.position.x, char.position.y, char.position.z)
+      }
+    })
+  }
+
+  doVrumControllerTick(data, cmKey) {
+    if (this.respawner.has(data.vrumKey)) { return }
+    let target = this.findOrCreate(data.vrumKey)
+
+    if (target.vrumNetNeedsInit) {
+      delete target.vrumNetNeedsInit
+      target.defaultSkin()
+      target.health.setText(`${Config.instance.vax.CONTROLLER}: ${target.vrumKey}`)
+      target.isNetwork = true
+      target.isController = true
+      this.inputMapper.peer2key[cmKey] = target.vrumKey
+    }
+    target.doVrumControllerEvent(data)
   }
 }

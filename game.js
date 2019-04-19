@@ -1,13 +1,24 @@
 Config.instance.engine.prod = true
 Config.instance.engine.debug = !Config.instance.engine.prod
 Config.instance.window.showStatsOnStart = !Config.instance.engine.prod
-// Config.instance.window.showStatsOnStart = true
+// Config.instance.window.showStatsOnStart = false
 
 Config.instance.vax = {
   skyColor: '#29bbf4',
   groundColor: '#55AA55',
   stoneColor: '#6C8D9A',
   lighColor: 0xffffff,
+
+  KEYBOARD: 'K',
+  GAMEPAD1: 'G1',
+  GAMEPAD2: 'G2',
+  GAMEPAD3: 'G3',
+  GAMEPAD4: 'G4',
+  MOBILE: 'M',
+  CONTROLLER: 'C',
+  NETWORK: 'N',
+  BOT: 'B',
+  BOT_NETWORK: 'BN',
 }
 
 PoolManager.on('spawn', Explosion, (item, options) => {
@@ -21,7 +32,7 @@ PoolManager.on('release', Explosion, (item) => {
 })
 
 PoolManager.on('spawn', Bullet, (item, options) => {
-  item.from(options.from)
+  item.from(options)
   Hodler.get('scene').add(item)
 })
 PoolManager.on('release', Bullet, (item) => {
@@ -39,15 +50,19 @@ PoolManager.on('release', Coin, (item, options) => {
 
 let menuScene = new MenuScene()
 let campaignScene = new CampaignScene()
-let levelSelectScene = new LevelSelectScene()
-let lobbyBrowserScene = new LobbyBrowserScene()
+let lobbyScene = new LobbyScene()
 let buildScene = new BuildScene()
 let screenshotScene = new ScreenshotScene()
 let tutorialScene = new TutorialScene()
 
 let creditsScene = new AddsScene(menuScene, ["vrum-text.png", "credits.png"])
 
-let sceneAfterLoading = Config.instance.engine.prod ? menuScene : campaignScene
+let sceneAfterLoading = menuScene
+let directRoomId = MeshNetwork.getRoomId()
+if (!isBlank(directRoomId)) {
+  sceneAfterLoading = buildScene
+}
+if (!Config.instance.engine.prod) { sceneAfterLoading = campaignScene }
 
 let loadingScene = new VaxLoadingScene(sceneAfterLoading, [
   { type: 'image', path: 'assets/hand.png' },
@@ -61,6 +76,10 @@ let loadingScene = new VaxLoadingScene(sceneAfterLoading, [
   // { type: 'model', path: 'assets/models/barrel.001.glb' }, // already loaded
   { type: 'model', path: 'assets/models/button.bg.001.glb' },
   { type: 'model', path: 'assets/models/button.fg.001.glb' },
+  { type: 'model', path: 'assets/models/button.bg.002.glb' },
+  { type: 'model', path: 'assets/models/button.fg.002.glb' },
+  { type: 'model', path: 'assets/models/button.bg.003.glb' },
+  { type: 'model', path: 'assets/models/button.fg.003.glb' },
   { type: 'model', path: 'assets/models/chassis.001.glb' },
   { type: 'model', path: 'assets/models/chassis.002.glb' },
   { type: 'model', path: 'assets/models/chassis.003.glb' },
@@ -124,3 +143,5 @@ Engine.start(sceneAfterInit, [
   { type: 'image', path: 'assets/credits.png'},
   { type: 'model', path: 'assets/models/barrel.001.glb' },
 ])
+
+initNetwork(directRoomId)

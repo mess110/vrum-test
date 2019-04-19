@@ -26,6 +26,7 @@ class Tank extends THREE.Object3D {
 
   setModel(key) {
     this.remove(this.chassis)
+    this.chassisModels.setIndexByValue(key)
     let chassis = AssetManager.clone(key)
     Utils.addOutline(chassis)
     this.chassis = chassis
@@ -38,6 +39,7 @@ class Tank extends THREE.Object3D {
 
   changeWheels(key) {
     this.wheels.setModel(key)
+    this.wheelModels.setIndexByValue(key)
   }
 
   nextWeapon() {
@@ -46,6 +48,30 @@ class Tank extends THREE.Object3D {
 
   changeWeapon(key) {
     this.weapon.setModel(key)
+    this.weaponModels.setIndexByValue(key)
+  }
+
+  defaultSkin() {
+    this.chassisModels.index = 0
+    this.setModel(this.chassisModels.get())
+    this.wheelModels.index = 0
+    this.changeWheels(this.wheelModels.get())
+    this.weaponModels.index = 0
+    this.changeWeapon(this.weaponModels.get())
+  }
+
+  toJsonModel() {
+    return {
+      chassis: this.chassisModels.get(),
+      wheels: this.wheelModels.get(),
+      weapon: this.weaponModels.get(),
+    }
+  }
+
+  fromJsonModel(model) {
+    this.setModel(model.chassis)
+    this.changeWheels(model.wheels)
+    this.changeWeapon(model.weapon)
   }
 }
 

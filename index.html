@@ -28,15 +28,15 @@ canvas#vrum-dom {
         <script src="vrum.min.js"></script>
         <script>
             loadVrumScripts([
+                'scenes/BaseMenuScene.js',
                 'scenes/BuildScene.js',
-                'scenes/LobbyBrowserScene.js',
+                'scenes/LobbyScene.js',
                 'scenes/MenuScene.js',
                 'scenes/ScreenshotScene.js',
                 'scenes/GameScene.js',
                 'scenes/CampaignScene.js',
                 'scenes/TutorialScene.js',
                 'scenes/VaxLoadingScene.js',
-                'scenes/LevelSelectScene.js',
 
                 'models/InputMapper.js',
                 'models/Bullet.js',
@@ -47,7 +47,10 @@ canvas#vrum-dom {
                 'models/Player.js',
                 'models/BotControls.js',
                 'models/Health.js',
+                'models/Respawner.js',
+                'models/Buttons.js',
 
+                'networking.js',
                 'game.js',
             ])
         </script>

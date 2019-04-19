@@ -2,9 +2,9 @@ class CampaignScene extends GameScene {
   init(options) {
     super.init(options)
 
-    this.addPlayer(options)
+    this.findOrCreate()
 
-    this.addBot({position: { x: 15, z: 15 }})
+    // this.addBot({position: { x: 15, z: 15 }})
     // this.addBot({position: { x: 15, z: 15 }})
     // this.addBot({position: { x: 15, z: 15 }})
     // this.addBot({position: { x: 15, z: 15 }})
@@ -14,9 +14,9 @@ class CampaignScene extends GameScene {
     // this.addBot({position: { x: -15, z: 15 }})
     // this.addBot({position: { x: -15, z: 15 }})
     // this.addBot({position: { x: -15, z: 15 }})
-    this.addBot({position: { x: -15, z: 15 }})
+    // this.addBot({position: { x: -15, z: 15 }})
 
-    this.addBot({position: { x: -25, z: -15 }, type: BotMeleeControls })
+    // this.addBot({position: { x: -25, z: -15 }, type: BotMeleeControls })
     // this.addBot({position: { x: -25, z: -15 }})
     // this.addBot({position: { x: -25, z: -15 }})
     // this.addBot({position: { x: -25, z: -15 }})
@@ -26,13 +26,14 @@ class CampaignScene extends GameScene {
     // this.addBot({position: { x: 25, z: -15 }})
     // this.addBot({position: { x: 25, z: -15 }})
     // this.addBot({position: { x: 25, z: -15 }})
-    this.addBot({position: { x: 25, z: -15 }, type: BotMeleeControls })
+    // this.addBot({position: { x: 25, z: -15 }, type: BotMeleeControls })
 
     this.phase = 0
     this.ended = 0
   }
 
   addBot(options) {
+    if (isBlank(options)) { options = {} }
     if (isBlank(options.type)) {
       options.type = BotRandomControls
     }
@@ -45,6 +46,11 @@ class CampaignScene extends GameScene {
       options.model.weapon = 'weapon.004.glb'
     }
     let bot = this.addPlayer(options)
+    bot.health.setText(`${Config.instance.vax.BOT}: ${this.vrumKey}`)
+    bot.vrumOwner = this.vrumKey
+    bot.isBot = true
+    bot.shootCooldown = 1
+
     if (options.type == BotMeleeControls) {
       bot.acceleration = 1
       bot.control.acceleration = 1
@@ -60,13 +66,15 @@ class CampaignScene extends GameScene {
       this.ended += tpf
       if (this.ended > 5) {
         this.phase += 1
-        Engine.switch(menuScene)
+        // Engine.switch(menuScene)
       }
     }
 
     this.characters.forEach((character) => {
       character.tick(tpf)
 
+      // we don't check for isBot because we want only the vrumOwner
+      // to control the bot
       if (!isBlank(character.botControls)) {
         character.botControls.tick(tpf, character)
 

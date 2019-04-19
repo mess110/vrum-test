@@ -34,6 +34,10 @@ class Player extends Tank {
     // rayScanner.drawLines = Config.instance.engine.debug
     this.rayScanner = rayScanner
 
+    let health = new Health()
+    this.add(health)
+    this.health = health
+
     let boundingCube = Utils.boundingBox({size: this.size})
     boundingCube.position.y = 2
     this.add(boundingCube)
@@ -68,8 +72,21 @@ class Player extends Tank {
     }, duration)
 
     this.timeSinceLastShot = 0
+    let netBullet = {
+      vrumKey: this.vrumKey,
+      vrumOwner: this.vrumOwner,
+      position: { x: this.position.x, y: 2.65, z: this.position.z },
+      rotation: { x: this.weapon.rotation.x, y: this.weapon.rotation.y, z: this.weapon.rotation.z },
+    }
 
-    PoolManager.spawn(Bullet, { from: this })
+    if (this.isNetwork) {
+      if (this.isController) {
+        PoolManager.spawn(Bullet, netBullet)
+      }
+    } else {
+      PoolManager.spawn(Bullet, netBullet)
+      MeshNetwork.instance.bullets.push(netBullet)
+    }
   }
 
   move(direction) {
@@ -166,10 +183,25 @@ class Player extends Tank {
     this.control.doMobileEvent(joystickLeft)
     this.controlWeapon.doMobileEvent(joystickRight)
 
-    let joystick = joystickRight
-    if (!isBlank(joystick)) {
-      let deltaX = joystick.deltaX()
-      let deltaY = joystick.deltaY()
+    if (!isBlank(joystickRight)) {
+      let deltaX = joystickRight.deltaX()
+      let deltaY = joystickRight.deltaY()
+      this.shooting = deltaX > 40 || deltaX < -40 || deltaY > 40 || deltaY < -40
+    }
+  }
+
+  doVrumControllerEvent(event) {
+    if (event.type !== 'vrum-controller') { return }
+
+    let joystickLeft = event.joystickLeft
+    let joystickRight = event.joystickRight
+
+    this.control.doMobileEvent(this.control.vrumControl2Jostick(joystickLeft))
+    this.controlWeapon.doMobileEvent(this.controlWeapon.vrumControl2Jostick(joystickRight))
+
+    if (!isBlank(joystickRight)) {
+      let deltaX = joystickRight.dX
+      let deltaY = joystickRight.dY
       this.shooting = deltaX > 40 || deltaX < -40 || deltaY > 40 || deltaY < -40
     }
   }

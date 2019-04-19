@@ -10,11 +10,12 @@ class Bullet extends THREE.Object3D {
     this.shadowCastAndNotReceive()
   }
 
-  from(tank) {
+  from(options) {
     this.lifeTime = 0
-    this.position.copy(tank.position)
-    this.position.y = 2.65
-    this.rotation.copy(tank.weapon.rotation)
+    this.vrumKey = options.vrumKey
+    this.vrumOwner = options.vrumOwner
+    this.position.set(options.position.x, options.position.y, options.position.z)
+    this.rotation.set(options.rotation.x, options.rotation.y, options.rotation.z)
     this.translateZ(2.5)
   }
 

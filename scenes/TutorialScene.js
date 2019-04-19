@@ -2,7 +2,7 @@ class TutorialScene extends GameScene {
   init(options) {
     super.init(options)
 
-    this.addPlayer()
+    this.findOrCreate()
 
     let infoText = '    WASD KEYS   TO MOVE'
     if (VirtualController.isAvailable() || this.inputMapper.hasGamepad() || options.clickedWithGamepad) {

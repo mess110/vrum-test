@@ -15,7 +15,7 @@ class BotRandomControls {
 
   tick(tpf, bot) {
     this.time += tpf
-    if (this.time > 1) {
+    if (this.time > bot.shootCooldown) {
       this.time = 0
       this.action(bot)
     }
@@ -30,7 +30,7 @@ class BotRandomControls {
       ['Backward', 'Right'],
     ]
 
-    bot.shoot()
+    bot.shooting = true
     bot.move(direction.shuffle().first())
     bot.turn(direction.shuffle().first())
   }

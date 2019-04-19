@@ -5,28 +5,29 @@ class Health extends THREE.Object3D {
     let outlineScalePercent = 10
 
     let heart = AssetManager.clone('heart.001.glb')
-    heart.lookAt(Hodler.get('camera').position)
-    Utils.addOutline(heart, outlineScalePercent)
     heart.position.set(-2, 0, 0)
+    heart.rotation.set(-0.8, 0, 0)
+    Utils.addOutline(heart, outlineScalePercent)
     this.add(heart)
 
     let heart2 = AssetManager.clone('heart.001.glb')
-    heart2.lookAt(Hodler.get('camera').position)
-    Utils.addOutline(heart2, outlineScalePercent)
     heart2.position.set(0, 0, 0)
+    heart2.rotation.set(-0.8, 0, 0)
+    Utils.addOutline(heart2, outlineScalePercent)
     this.add(heart2)
 
     let heart3 = AssetManager.clone('heart.001.glb')
-    heart3.lookAt(Hodler.get('camera').position)
-    Utils.addOutline(heart3, outlineScalePercent)
     heart3.position.set(2, 0, 0)
+    heart3.rotation.set(-0.8, 0, 0)
+    Utils.addOutline(heart3, outlineScalePercent)
     this.add(heart3)
 
     let text = new BaseText({
       text: '', fillStyle: 'white', align: 'center',
       material: THREE.MeshLambertMaterial,
-      strokeStyle: 'black', strokeLineWidth: 5,
-      canvasW: 256, canvasH: 256,
+      strokeStyle: 'black', strokeLineWidth: 3,
+      w: 16, h: 4,
+      canvasW: 1024, canvasH: 256,
       font: '72px luckiest-guy'
     })
     text.rotation.set(-0.9, 0, 0)
@@ -43,6 +44,7 @@ class Health extends THREE.Object3D {
   }
 
   setText(s) {
+    s = s.substring(0, 10);
     this.text.setText(s)
   }
 

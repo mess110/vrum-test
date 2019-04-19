@@ -48,7 +48,7 @@ class BuildScene extends Scene {
     this.stopAutoRotate = false
     this.heldButton = undefined
 
-    let chassisButton = new Button3D('chassis')
+    let chassisButton = new MenuButton('chassis')
     chassisButton.position.set(-7, 4.75, -3)
     chassisButton.lookAt(Hodler.get('camera').position)
     chassisButton.onClick = () => {
@@ -59,7 +59,7 @@ class BuildScene extends Scene {
     this.add(chassisButton)
     this.buttons.push(chassisButton)
 
-    let weaponButton = new Button3D('weapon')
+    let weaponButton = new MenuButton('weapon')
     weaponButton.position.set(0, 5, -3)
     weaponButton.lookAt(Hodler.get('camera').position)
     weaponButton.onClick = () => {
@@ -70,7 +70,7 @@ class BuildScene extends Scene {
     this.add(weaponButton)
     this.buttons.push(weaponButton)
 
-    let wheelButton = new Button3D('wheels')
+    let wheelButton = new MenuButton('wheels')
     wheelButton.position.set(7, 4.75, -3)
     wheelButton.lookAt(Hodler.get('camera').position)
     wheelButton.onClick = () => {
@@ -81,21 +81,19 @@ class BuildScene extends Scene {
     this.add(wheelButton)
     this.buttons.push(wheelButton)
 
-    let saveButton = new Button3D('start')
+    let saveButton = new MenuButton('start')
     saveButton.position.set(5, -2, 4)
     saveButton.lookAt(Hodler.get('camera').position)
     saveButton.onClick = () => {
       saveButton.isEnabled = false
-      Engine.switch(campaignScene, undefined, { model: {
-        'chassis': this.tank.chassisModels.get(),
-        'wheels': this.tank.wheelModels.get(),
-        'weapon': this.tank.weaponModels.get(),
-      }})
+      Engine.switch(campaignScene, undefined, {
+        model: this.tank.toJsonModel()
+      })
     }
     this.add(saveButton)
     this.buttons.push(saveButton)
 
-    let backButton = new Button3D('back')
+    let backButton = new MenuButton('back')
     backButton.position.set(-5, -2, 4)
     backButton.lookAt(Hodler.get('camera').position)
     backButton.onClick = () => {
