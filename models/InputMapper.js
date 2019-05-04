@@ -10,6 +10,29 @@ class InputMapper {
     this.mobile = undefined
     this.sockets = {}
     this.peer2key = {}
+
+    // the vrumKeys which are owned by this instance
+    this.hostedVrumKeys = {
+      keyboard: Utils.guid(),
+      gamepad1: Utils.guid(),
+      gamepad2: Utils.guid(),
+      gamepad3: Utils.guid(),
+      gamepad4: Utils.guid(),
+      mobile: Utils.guid(),
+    }
+  }
+
+  getVrumKey(which) {
+    if (!(Object.keys(this.hostedVrumKeys).includes(which))) {
+      throw 'invalid ${which} vrumKey'
+    }
+    return this.hostedVrumKeys[which]
+  }
+
+  isHosting(vrumKey) {
+    return Object.values(this.hostedVrumKeys)
+      .filter((e) => { return e == vrumKey })
+      .any()
   }
 
   uuids() {

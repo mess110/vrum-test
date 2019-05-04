@@ -22,6 +22,7 @@ cp ../../assets/models/button.bg.002.glb assets/models/
 cp ../../assets/models/button.fg.002.glb assets/models/
 cp ../../assets/models/button.bg.003.glb assets/models/
 cp ../../assets/models/button.fg.003.glb assets/models/
+cp ../../assets/models/crown.001.glb assets/models/
 cp ../../assets/models/chassis.001.glb assets/models/
 cp ../../assets/models/chassis.002.glb assets/models/
 cp ../../assets/models/chassis.003.glb assets/models/
@@ -29,6 +30,7 @@ cp ../../assets/models/chassis.004.glb assets/models/
 cp ../../assets/models/cloud.001.glb assets/models/
 cp ../../assets/models/coin.001.glb assets/models/
 cp ../../assets/models/flag.001.glb assets/models/
+cp ../../assets/models/friendzone.001.glb assets/models/
 cp ../../assets/models/grass.full.001.glb assets/models/
 cp ../../assets/models/heart.001.glb assets/models/
 cp ../../assets/models/island.001.glb assets/models/

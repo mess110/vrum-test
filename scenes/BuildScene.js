@@ -30,8 +30,9 @@ class BuildScene extends Scene {
     this.buttons = []
 
     let tank = new Tank()
-    tank.shadowCastAndNotReceive()
     tank.position.set(0, 0, 1)
+    tank.fromJsonModel(Persist.getJson('skin'))
+    tank.shadowCastAndNotReceive()
     this.add(tank)
     this.tank = tank
 
@@ -81,14 +82,13 @@ class BuildScene extends Scene {
     this.add(wheelButton)
     this.buttons.push(wheelButton)
 
-    let saveButton = new MenuButton('start')
+    let saveButton = new MenuButton('save')
     saveButton.position.set(5, -2, 4)
     saveButton.lookAt(Hodler.get('camera').position)
     saveButton.onClick = () => {
       saveButton.isEnabled = false
-      Engine.switch(campaignScene, undefined, {
-        model: this.tank.toJsonModel()
-      })
+      Persist.setJson('skin', this.tank.toJsonModel())
+      Engine.switch(optionsScene)
     }
     this.add(saveButton)
     this.buttons.push(saveButton)
@@ -98,7 +98,7 @@ class BuildScene extends Scene {
     backButton.lookAt(Hodler.get('camera').position)
     backButton.onClick = () => {
       backButton.isEnabled = false
-      Engine.switch(menuScene)
+      Engine.switch(optionsScene)
     }
     this.add(backButton)
     this.buttons.push(backButton)

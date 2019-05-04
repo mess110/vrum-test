@@ -205,4 +205,9 @@ class Player extends Tank {
       this.shooting = deltaX > 40 || deltaX < -40 || deltaY > 40 || deltaY < -40
     }
   }
+
+  shadowCastAndNotReceive() {
+    super.shadowCastAndNotReceive()
+    this.health.shadowNone()
+  }
 }

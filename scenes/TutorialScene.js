@@ -2,8 +2,6 @@ class TutorialScene extends GameScene {
   init(options) {
     super.init(options)
 
-    this.findOrCreate()
-
     let infoText = '    WASD KEYS   TO MOVE'
     if (VirtualController.isAvailable() || this.inputMapper.hasGamepad() || options.clickedWithGamepad) {
       infoText = '          LEFT              JOYSTICK     TO MOVE'
@@ -22,7 +20,7 @@ class TutorialScene extends GameScene {
 
       PoolManager.itemsInUse(Coin).forEach((coin) => {
         if (!coin.pickedUp) {
-          this.hitVector.setFromMatrixPosition(player.boundingCube.matrixWorld);
+          this.hitVector.setFromMatrixPosition(player.boundingCube.matrixWorld)
           let distance = Measure.distanceBetween(coin, this.hitVector)
           if (distance < 3) {
             coin.pickup()

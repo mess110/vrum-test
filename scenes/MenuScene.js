@@ -58,20 +58,21 @@ class MenuScene extends BaseMenuScene {
     buttonModels.add(tutorialButton)
     this.buttons.push(tutorialButton)
 
-    let playButton = new MenuButton('campaign')
+    let playButton = new MenuButton('play')
     playButton.position.set(0, 0, 0)
     playButton.onClick = () => {
       playButton.isEnabled = false
-      Engine.switch(buildScene)
+      Engine.switch(campaignScene)
     }
     buttonModels.add(playButton)
     this.buttons.push(playButton)
 
-    let multiplayerButton = new MenuButton('join game')
+    let multiplayerButton = new MenuButton('options')
+    // multiplayerButton.isEnabled = false
     multiplayerButton.position.set(0, -3, 0)
     multiplayerButton.onClick = () => {
       multiplayerButton.isEnabled = false
-      Engine.switch(lobbyScene)
+      Engine.switch(optionsScene)
     }
     buttonModels.add(multiplayerButton)
     this.buttons.push(multiplayerButton)

@@ -30,10 +30,16 @@ const networkTick = () => {
     characters: [],
     bullets: mn.bullets
   }
+  if (isGameMaster()) {
+    data.infoMsg = scene.infoText.getText()
+  }
   mn.bullets = []
 
 
-  let myChars = scene.characters.filter((char) => { return char.vrumOwner === scene.vrumKey })
+  let myChars = scene.characters.filter((char) => {
+    return scene.inputMapper.isHosting(char.vrumOwner)
+  })
+
   myChars.forEach((char) => {
     data.characters.push({
       vrumKey: char.vrumKey,
@@ -50,13 +56,35 @@ const networkTick = () => {
     })
   })
 
-  MeshNetwork.instance.emit(data)
+  if (myChars.any() || data.bullets.any()) {
+    MeshNetwork.instance.emit(data)
+  }
+}
+
+const isGameMaster = () => {
+  return directRoomId == myRoomId
+}
+
+const getInviteLink = () => {
+  let room = MeshNetwork.instance.room
+  return `${Utils.getUrlNoParams()}?room=${room}`
+}
+
+const getJoystickLink = () => {
+  let room = MeshNetwork.instance.room
+  let joystickLink = Utils.getUrlNoParams()
+  if (!joystickLink.endsWith('/')) {
+    joystickLink += '/'
+  }
+  joystickLink += `controller.html?room=${room}`
+  return joystickLink
 }
 
 const initNetwork = (roomId) => {
   tryDcNetwork()
-  if (isBlank(roomId)) { roomId = Utils.guid() }
+  if (isBlank(roomId)) { throw 'roomId can not be blank' }
   netLog(`Connecting to room '${roomId}'`)
+  netLog(`GameMaster: ${isGameMaster()}`)
 
   let mn = new MeshNetwork()
   mn.bullets = []

@@ -58,6 +58,7 @@ class Tank extends THREE.Object3D {
     this.changeWheels(this.wheelModels.get())
     this.weaponModels.index = 0
     this.changeWeapon(this.weaponModels.get())
+    this.shadowCastAndNotReceive()
   }
 
   toJsonModel() {
@@ -69,9 +70,11 @@ class Tank extends THREE.Object3D {
   }
 
   fromJsonModel(model) {
+    if (isBlank(model)) { return }
     this.setModel(model.chassis)
     this.changeWheels(model.wheels)
     this.changeWeapon(model.weapon)
+    this.shadowCastAndNotReceive()
   }
 }
 

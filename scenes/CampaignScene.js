@@ -2,34 +2,34 @@ class CampaignScene extends GameScene {
   init(options) {
     super.init(options)
 
-    this.findOrCreate()
-
-    // this.addBot({position: { x: 15, z: 15 }})
-    // this.addBot({position: { x: 15, z: 15 }})
-    // this.addBot({position: { x: 15, z: 15 }})
-    // this.addBot({position: { x: 15, z: 15 }})
-    // this.addBot({position: { x: 15, z: 15 }})
-
-    // this.addBot({position: { x: -15, z: 15 }})
-    // this.addBot({position: { x: -15, z: 15 }})
-    // this.addBot({position: { x: -15, z: 15 }})
-    // this.addBot({position: { x: -15, z: 15 }})
-    // this.addBot({position: { x: -15, z: 15 }})
-
-    // this.addBot({position: { x: -25, z: -15 }, type: BotMeleeControls })
-    // this.addBot({position: { x: -25, z: -15 }})
-    // this.addBot({position: { x: -25, z: -15 }})
-    // this.addBot({position: { x: -25, z: -15 }})
-    // this.addBot({position: { x: -25, z: -15 }})
-
-    // this.addBot({position: { x: 25, z: -15 }})
-    // this.addBot({position: { x: 25, z: -15 }})
-    // this.addBot({position: { x: 25, z: -15 }})
-    // this.addBot({position: { x: 25, z: -15 }})
-    // this.addBot({position: { x: 25, z: -15 }, type: BotMeleeControls })
-
-    this.phase = 0
+    this.phase = Config.instance.vax.WaitingPhase
     this.ended = 0
+    this.level = 0
+
+    if (isGameMaster()) {
+      MeshNetwork.instance.emit({type: 'vrum-network', bullets: [], characters: [], action: 'startLevel', level: this.level })
+      this.startLevel(this.level)
+
+      this.setTimeout(() => {
+        Difficulty.initLevel(this.level)
+      }, Config.instance.vax.gameStartDelay)
+    } else {
+      this.setInfoMsg('waiting for host')
+    }
+  }
+
+  startLevel(level) {
+    this.phase = Config.instance.vax.FightPhase
+    this.countdown(5)
+    this.score.levelInfo.setLevel(level)
+  }
+
+  getLerpTarget() {
+    if (this.phase >= Config.instance.vax.EndPhase) {
+      return new THREE.Vector3()
+    } else {
+      return super.getLerpTarget()
+    }
   }
 
   addBot(options) {
@@ -45,9 +45,10 @@ class CampaignScene extends GameScene {
     if (options.type == BotMeleeControls) {
       options.model.weapon = 'weapon.004.glb'
     }
+    let vrumKey = this.inputMapper.getVrumKey('keyboard')
     let bot = this.addPlayer(options)
-    bot.health.setText(`${Config.instance.vax.BOT}: ${this.vrumKey}`)
-    bot.vrumOwner = this.vrumKey
+    bot.health.setText(`${Config.instance.vax.BOT}: ${vrumKey}`)
+    bot.vrumOwner = vrumKey
     bot.isBot = true
     bot.shootCooldown = 1
 
@@ -59,14 +60,26 @@ class CampaignScene extends GameScene {
     return bot
   }
 
+  countdown(i) {
+    if (!isNumeric(i)) { i = 5 }
+    if (i == 0) {
+      this.setInfoMsg('')
+      return
+    }
+    this.setInfoMsg(i)
+    this.setTimeout(() => {
+      this.countdown(i - 1)
+    }, 1000)
+  }
+
   tick(tpf) {
     super.tick(tpf)
 
-    if (this.phase == 1) {
+    if (this.phase == Config.instance.vax.EndPhase) {
       this.ended += tpf
       if (this.ended > 5) {
         this.phase += 1
-        // Engine.switch(menuScene)
+        Engine.switch(menuScene)
       }
     }
 
@@ -98,11 +111,15 @@ class CampaignScene extends GameScene {
           let distance = Measure.distanceBetween(coin, this.hitVector)
           if (distance < 3) {
             coin.pickup()
+            let ours = false
             this.inputMapper.uuids().forEach((uuid) => {
               if (character.uuid == uuid) {
-                this.score.bump()
+                ours = true
               }
             })
+            if (ours) {
+              this.score.bump()
+            }
           }
         }
       })
@@ -156,15 +173,15 @@ class CampaignScene extends GameScene {
       coinPos.y = 2
       PoolManager.spawn(Coin, { position: coinPos })
 
-      if (this.phase === 0) {
+      if (this.phase === Config.instance.vax.FightPhase) {
         if (!this.atLeastOneAlive()) {
           this.setInfoMsg('try again')
-          this.phase = 1
+          this.phase = Config.instance.vax.EndPhase
         }
 
         if (this.allEnemiesDead()) {
           this.setInfoMsg('gg')
-          this.phase = 1
+          this.phase = Config.instance.vax.ShopPhase
         }
       }
     }

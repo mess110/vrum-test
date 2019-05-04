@@ -1,11 +1,7 @@
 class GameScene extends Scene {
   init(options) {
-    this.savedOptions = options
-
     addBaseLight(this)
     Utils.setCursor('none')
-
-    this.inputMapper = new InputMapper()
 
     let camera = this.getCamera()
     camera.position.set(0, 35, 25)
@@ -28,11 +24,6 @@ class GameScene extends Scene {
     sky.lookAt(camera.position)
     this.add(sky)
 
-    this.respawner = new Respawner()
-    this.characters = []
-    this.collidables = [islandWalk]
-    this.vrumKey = Utils.guid()
-
     this.infoText = new BaseText({
       text: '', fillStyle: 'white', align: 'center',
       material: THREE.MeshLambertMaterial,
@@ -52,8 +43,11 @@ class GameScene extends Scene {
     camera.add(score)
     this.add(camera)
 
-    let vector = new THREE.Vector3();
-    this.hitVector = vector
+    this.hitVector = new THREE.Vector3()
+    this.inputMapper = new InputMapper()
+    this.respawner = new Respawner()
+    this.characters = []
+    this.collidables = [islandWalk]
 
     let vj = new VirtualController({
       joystickLeft: {
@@ -64,6 +58,10 @@ class GameScene extends Scene {
       }
     })
     this.vj = vj
+
+    let friendzone = new Friendzone()
+    this.add(friendzone)
+    this.friendzone = friendzone
   }
 
   uninit() {
@@ -71,7 +69,10 @@ class GameScene extends Scene {
     Hodler.get('camera').remove(this.score)
   }
 
-  setInfoMsg(key) {
+  setInfoMsg(text) {
+    if (text === this.infoText.futureText) { return }
+    this.infoText.futureText = text
+
     let easing = TWEEN.Easing.Cubic.InOut
     if (!isBlank(this.fadeIn)) {
       this.fadeIn.stop()
@@ -84,7 +85,7 @@ class GameScene extends Scene {
     this.fadeIn = new FadeModifier(this.infoText, 1, 0, 500, easing)
     this.fadeIn.start()
     this.setTimeout(() => {
-      this.infoText.setText(key)
+      this.infoText.setText(text)
       this.fadeOut = new FadeModifier(this.infoText, 0, 1, 500, easing)
       this.fadeOut.start()
     }, 600)
@@ -108,8 +109,6 @@ class GameScene extends Scene {
     tank.position.set(options.position.x, options.position.y, options.position.z)
     tank.fromJsonModel(options.model)
     tank.rayScanner.collidables = this.collidables
-    tank.shadowCastAndNotReceive()
-    tank.health.shadowNone()
 
     this.characters.forEach((character) => {
       tank.rayScanner.addCollidable(character)
@@ -133,27 +132,31 @@ class GameScene extends Scene {
   }
 
   getLerpTarget() {
-    let x, y, z
-    let items = this.characters
+    let vector = new THREE.Vector3()
+    let items = this.getAllCharacters()
+    if (items.isEmpty()) { return vector }
+
+    ['x', 'y', 'z'].forEach((c) => {
+      vector[c] = items
+        .map((e) => { return e.position[c] })
+        .reduce((a, b) => { return a + b }) / items.size()
+    })
+
+    return vector
+  }
+
+  getAllCharacters() {
+    return this.characters
       .filter((e) => { return !e.isBot })
       .filter((e) => { return !e.health.isDead() })
-
-    if (items.any()) {
-      x = items.map((e) => { return e.position.x }).reduce((a, b) => { return a + b }) / items.size()
-      y = items.map((e) => { return e.position.y }).reduce((a, b) => { return a + b }) / items.size()
-      z = items.map((e) => { return e.position.z }).reduce((a, b) => { return a + b }) / items.size()
-    } else {
-      x = 0
-      y = 0
-      z = 0
-    }
-    return new THREE.Vector3(x, y, z)
   }
 
   tick(tpf) {
-    Measure.clearLines()
+    this.lerpTarget = this.getLerpTarget()
+    this.friendzone.tick(tpf, this.lerpTarget, this.getAllCharacters())
+    let fit = this.friendzone.furthestAway < 15 ? 0 : this.friendzone.furthestAway - 15
+    Utils.lerpCamera(this.lerpTarget, new THREE.Vector3(0, 35 + fit, 25 + fit))
 
-    Utils.lerpCamera(this.getLerpTarget(), new THREE.Vector3(0, 35, 25))
     this.score.tick(tpf)
     this.doMobileEvent(this.inputMapper.mobile)
 
@@ -167,11 +170,9 @@ class GameScene extends Scene {
   }
 
   findOrCreate(vrumKey) {
-    let vrumOwner
-    if (isBlank(vrumKey)) {
-      vrumKey = this.vrumKey
-    }
-    vrumOwner = vrumKey
+    if (isBlank(vrumKey)) { throw `vrumKey param missing` }
+
+    let vrumOwner = vrumKey
     let found
 
     this.characters.forEach((character) => {
@@ -180,7 +181,10 @@ class GameScene extends Scene {
       }
     })
     if (isBlank(found)) {
-      let char = this.addPlayer({ model: this.savedOptions.model, vrumKey: vrumKey })
+      let char = this.addPlayer({
+        model: Persist.getJson('skin'),
+        vrumKey: vrumKey
+      })
       char.vrumNetNeedsInit = true
       char.vrumOwner = vrumOwner
       return char
@@ -194,7 +198,7 @@ class GameScene extends Scene {
   doMouseEvent(event, raycaster) {
     if (!VirtualController.isAvailable()) { return }
     if (!isBlank(this.inputMapper.mobile)) { return }
-    let target = this.findOrCreate()
+    let target = this.findOrCreate(this.inputMapper.getVrumKey('mobile'))
     target.health.setText(`${Config.instance.vax.MOBILE}: ${target.vrumKey}`)
     this.inputMapper.mobile = target
   }
@@ -209,7 +213,7 @@ class GameScene extends Scene {
   doKeyboardEvent(event) {
     let target = this.inputMapper.keyboard
     if (isBlank(target)) {
-      this.inputMapper.keyboard = this.findOrCreate()
+      this.inputMapper.keyboard = this.findOrCreate(this.inputMapper.getVrumKey('keyboard'))
       target = this.inputMapper.keyboard
       target.health.setText(`${Config.instance.vax.KEYBOARD}: ${target.vrumKey}`)
     }
@@ -225,7 +229,7 @@ class GameScene extends Scene {
     ].forEach((target, index) => {
       if (isBlank(target)) {
         if (!isBlank(event[index])) {
-          let target = this.findOrCreate()
+          let target = this.findOrCreate(this.inputMapper.getVrumKey(`gamepad${index + 1}`))
           this.inputMapper[`gamepad${index + 1}`] = target
           let which = Config.instance.vax[`GAMEPAD${index + 1}`]
           target.health.setText(`${which}: ${target.vrumKey}`)
@@ -237,8 +241,17 @@ class GameScene extends Scene {
   }
 
   doNetworkTick(data, cmKey) {
+    if (!isBlank(data.infoMsg)) {
+      this.setInfoMsg(data.infoMsg)
+    }
+    if (data.action == 'startLevel') {
+      this.startLevel(data.level)
+    }
     data.bullets.forEach((bullet) => {
-      let bulletOwner = this.characters.filter((e) => { return bullet.vrumKey == e.vrumKey }).first()
+      let bulletOwner = this.characters.filter((e) => {
+        return bullet.vrumKey == e.vrumKey
+      }).first()
+
       if (bulletOwner.isNetwork) {
         PoolManager.spawn(Bullet, bullet)
       }
